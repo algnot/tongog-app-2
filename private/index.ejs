@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tongog-app</title>
+    <link href="/asset/fontawesome-free/css/all.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+
+    <div class="navigation">
+       <div class="link active"><i class="fas fa-meteor"></i> Feed</div>
+       <div class="link"><i class="fas fa-people-arrows"></i> Message</div>
+       <div class="link"><i class="fas fa-satellite"></i> My question</div> 
+       <div class="profile">
+           <div class="profile-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
+           <div class="profile-name"><%= data[0].username %></div>
+       </div>
+    </div>
+
+    <div class="container-top-post" id="post-menu">
+        <div class="top-post">
+            <div class="post-menu">
+                <div class="top-post-topic">Create your post</div>
+                <i class="fas fa-times" onclick="document.getElementById('post-menu').style.display='none'"></i>
+            </div> 
+            <div class="post-info">
+                <div class="top-post-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
+                <div class="post-info-name">
+                    <div style="height: fit-content;">
+                        <div><%= data[0].username %></div>
+                        <div class="private"><i class="fas fa-globe-americas"></i>Everyone can see.</div>
+                    </div>
+                </div>
+            </div>
+            <form action="/post" method="post" id="postForm">
+                <textarea rows="3" placeholder="What do you think?" name="content"></textarea>
+            </form>
+            <div class="button" onclick="document.getElementById('postForm').submit();">Post</div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="post">
+            <div class="post-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
+            <div class="post-click" onclick="document.getElementById('post-menu').style.display='flex'">What do you think?</div>
+        </div>
+        <div id="root"></div>
+        <center><div class="loader"></div></center>
+    </div>
+
+
+    <script src="js/index.js"></script>
+    <script>
+        let count = 3; 
+        getPost(count);
+        setInterval(function(){ 
+            var user = document.documentElement.scrollTop;
+            var window = document.body.scrollHeight;
+            var h = screen.height;
+            if(h + user > window+20){
+                count++;
+                getPost(count);
+            }
+        }, 1000);
+
+        setInterval(function(){ 
+            getPost(count);
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+<div class="post-header2" onclick="window.location.href='/post/<%= data[0].id %>'">
+    <div class="post-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
+    <div class="post-name" style="font-size: 18px; color: #fff;"><%= data[0].username %> : <%= data[0].content.substring(0,110) %></div>
+</div>

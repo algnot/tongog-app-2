@@ -1,0 +1,366 @@
+@import url('https://fonts.googleapis.com/css2?family=Mitr:wght@200&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    font-family: 'Mitr', 'Montserrat', sans-serif;
+    transition: .3s ease;
+}
+
+body{
+    background-color: #202020;
+}
+
+.navigation{
+    padding: 10px;
+    background-color: #272727;
+    height: 40px;
+}
+
+.profile-img{
+   width: 30px;
+   height: 30px; 
+   border-radius: 100%;
+   background-position: center;
+   background-size: cover;
+   background-repeat: no-repeat;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+.link{
+    float: left;
+    margin-right: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    font-size: 18px;
+    color: #E59866;
+    cursor: pointer;
+    padding: 0 15px;
+}
+
+.active{
+    color: #F4D03F;
+    cursor: context-menu;
+}
+
+.link:hover{
+    color: #F4D03F;
+    background-color: #e599660e;
+    border-radius: 20px;
+}
+
+.active:hover{
+    background-color: transparent;
+}
+
+.profile{
+    height: 40px;
+    border-radius: 20px;
+    float: right;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    margin-right: 20px;
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background-color: #e599660e;
+}
+
+.profile:hover{
+    background-color: #e5996634;
+}
+
+.profile:hover .profile-name{
+    color: #F4D03F;
+}
+
+.fas {
+    margin-right: 10px;
+}
+
+.profile-name{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 10px;
+    font-size: 18px;
+    color: #E59866;
+} 
+
+.header{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 15px 10px;
+}
+
+.container{
+    width: 700px;
+    margin: 20px auto;
+}
+
+.post{
+    width: 100%;
+    background-color: #272727;
+    border-radius: 20px;
+    padding: 10px 30px;
+}
+
+.post-topic{
+    text-align: right;
+    color: #F4D03F;
+    font-size: 18px;
+    cursor: pointer;
+} 
+
+.back-to-home-page{
+    color: #afafaf;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.post-header{
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    padding-bottom: 25px;
+    margin-top: 20px;
+    margin-left: 10px;
+}
+
+.post-header2{
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    margin: 20px 0;
+    margin-left: 10px;
+    background-color: #202020;
+    width: fit-content;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.post-header2:hover{
+    background-color: #2c2c2c;
+}
+
+.post-img{
+    width: 40px;
+    height: 40px; 
+    border-radius: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+.post-name{
+    line-height: 20px;
+    display: flex;
+    align-items: center;
+    color: #F4D03F;
+    margin-left: 10px;
+}
+
+.post-content{
+    margin-top: 20px;
+    text-align: justify;
+    color: #fff;
+    font-size: 22px;
+    padding: 10px;
+}
+
+.comment{
+    margin-top: 30px;
+    margin-left: 10px;
+    color: #e68f56;
+    width: fit-content;
+}
+
+.form-comment{
+    margin-left: 10px;
+    margin-top: 25px;
+    display: flex;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #F4D03F;
+}
+
+.form-comment-img{
+    width: 40px;
+    height: 40px; 
+    border-radius: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.form-comment input[type=text]{
+    background-color: #afafaf17; 
+    border: transparent;
+    border-radius: 20px;
+    padding: 5px 20px;
+    color: #fff;
+    margin-left: 15px;
+    font-size: 18px;
+    width: 450px;
+}
+
+.form-comment input[type=text]:hover{
+    background-color: #afafaf1f;
+}
+
+.form-comment input[type=text]:focus{
+    outline: none;
+}
+
+.bunton{
+    color: #fff;
+    background-color: #eb813b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 15px;
+    padding: 0 20px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.bunton:hover{
+    background-color: #d47231;
+}
+
+.comment-text{
+    color: #fff;
+    margin-left: 10px;
+    font-size: 18px;
+}
+
+.sub-post{
+    margin-left: 10px;
+    padding:15px 0;
+    border-bottom: 1px solid #F4D03F;
+    cursor: pointer;
+}
+
+.sub-post:hover{
+    background-color: #242424;
+}
+
+.back-to-home-page:hover{
+    color: #fff;
+}
+
+.post a{
+    color: #d47231;
+}
+
+
+
+@media only screen and (max-width: 900px){
+    .container{
+        display: grid;
+        grid-template-columns: 1fr;
+        margin: 0;
+        width: 100vw;  
+    }
+
+    .post{
+        width: 90%;
+        padding: 0;
+        margin: 0;
+        padding: 10px;
+        margin: 20px auto;
+    }
+
+    .form-comment-img{
+        display: none;
+    }
+
+}
+
+
+@media only screen and (max-width: 600px){
+    .loader{
+        margin-bottom: 70px;
+    }
+
+    .form-comment input[type=text]{
+        width: 35vw;
+    }
+
+    .form-comment{
+        margin-left: 0px;
+    }
+
+    .post{
+        width: 90%;
+        padding: 0;
+        margin: 0;
+        padding: 10px;
+        margin: 20px auto;
+    }
+
+    #root{
+        margin-bottom: 70px;
+    }
+
+    .navigation{
+        position: fixed;
+        bottom: 0;
+        width: 100vw;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        z-index: 1;
+    }
+
+    .link{
+        font-size: 0;
+    }
+
+    .link .fas{
+        font-size: 18px;
+    }
+
+    .profile-name{
+        font-size: 0;
+        display: none;
+    }
+
+    .profile{
+        background-color: transparent;
+        float: left;
+    }
+
+    .header{
+        grid-template-columns: 1fr;
+    }
+    
+    .back-to-home-page{
+        font-size: 18px;
+    }
+
+    .post-header2{
+        grid-template-columns: 1fr;
+    }
+
+    .post-header2 .post-img{
+        display: none;
+    }
+
+    .post-header2 .post-name{
+        font-size: 15px;
+    }
+
+    .post-content{
+        font-size: 16px;
+    }
+
+    .comment-text{
+        font-size: 16px;
+    }
+}

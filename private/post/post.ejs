@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tongog-app | <%= data[0].username %>'s Post</title>
+    <link href="/asset/fontawesome-free/css/all.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/css/post.css?ver=3">
+</head>
+<body>
+    <div class="navigation">
+        <div class="link" onclick="window.location.href='/'"><i class="fas fa-meteor"></i> Feed</div>
+        <div class="link"><i class="fas fa-people-arrows"></i> Message</div>
+        <div class="link"><i class="fas fa-satellite"></i> My question</div> 
+        <div class="profile">
+            <div class="profile-img" style="background-image: url('/img/user/<%= data[1].username %>.jpg');"></div>
+            <div class="profile-name"><%= data[1].username %></div>
+        </div>
+    </div> 
+
+    <div class="container">
+        <div class="post">
+            <div class="header">
+                <div class="back-to-home-page" onclick="window.location.href='<%= data[2].backPage %>'"> <i class="fas fa-chevron-left"></i> <%= data[2].titleReply %></div>
+                <div class="post-topic"><b> <i class="fas fa-ellipsis-h"></i></b></div>
+            </div>
+
+            <span id="reply"></span>
+
+            <div class="post-header">
+                <div class="post-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
+                <div class="post-name"> <%= data[0].username %> <br> <%= data[0].time %> </div>
+            </div>
+
+            <div class="post-content">
+                <%= data[0].content %>
+            </div>
+
+            <div class="comment"> <%= data[0].comment %> <i class="fas fa-comment"></i> </div>
+
+            <div class="form-comment">
+                <div class="form-comment-img" style="background-image: url('/img/user/<%= data[1].username %>.jpg');"></div> 
+                <form action="/comment?id=<%= data[0].id %>" id="<%= data[0].id %>" method="post">
+                    <input type="text" placeholder="comment.." name="content" required>
+                </form>         
+                <div class="bunton" onclick="document.getElementById('<%= data[0].id %>').submit();">send</div>
+            </div>
+
+            <div id="root"></div>
+        </div>
+
+    </div>
+    <script>
+        let count = 3; 
+        getComment(count);
+        setInterval(function(){ 
+            var user = document.documentElement.scrollTop;
+            var window = document.body.scrollHeight;
+            var h = screen.height;
+            if(h + user > window+20){
+                count++;
+                getComment(count);
+            }
+        }, 1000);
+
+        setInterval(function(){ 
+            getComment(count);
+        }, 30000);
+
+        function getComment(limit){
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   document.getElementById("root").innerHTML = xhttp.responseText;
+                }
+            };
+            xhttp.open("GET", '/getComment?id=<%= data[0].id %>&limit='+limit , true);
+            xhttp.send();
+        }
+
+        getRyply();
+
+        function getRyply(){
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   document.getElementById("reply").innerHTML = xhttp.responseText;
+                }
+            };
+            xhttp.open("GET", '/getContent?id=<%= data[0].subPost %>' , true);
+            xhttp.send();
+        }
+    </script>
+</body>
+</html>
