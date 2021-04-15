@@ -256,8 +256,12 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         .then(result => {
             var now = Date.parse(Date());
             for(let i=0 ; i<result.length ; i++){
-                if(now - result[i].time < 3600000){
+                if((now - result[i].time)/36000 < 1){
                     result[i].time = parseInt((now - result[i].time)/36000) + ' minutes ago';
+                } else if((now - result[i].time)/36000/60 > 1 && (now - result[i].time)/36000/60 < 24){
+                    result[i].time = parseInt((now - result[i].time)/36000/60) + ' hours ago';
+                } else if((now - result[i].time)/36000/60/24 < 15){
+                    result[i].time = parseInt((now - result[i].time)/36000/60/24) + ' days ago';
                 } else{
                     var d = new Date(result[i].time);
                     result[i].time = d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear() + ' - ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
@@ -278,12 +282,16 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         .then(result => {
             var now = Date.parse(Date());
             for(let i=0 ; i<result.length ; i++){
-                if(now - result[i].time < 3600000){
+                if((now - result[i].time)/36000 < 1){
                     result[i].time = parseInt((now - result[i].time)/36000) + ' minutes ago';
+                } else if((now - result[i].time)/36000/60 > 1 && (now - result[i].time)/36000/60 < 24){
+                    result[i].time = parseInt((now - result[i].time)/36000/60) + ' hours ago';
+                } else if((now - result[i].time)/36000/60/24 < 15){
+                    result[i].time = parseInt((now - result[i].time)/36000/60/24) + ' days ago';
                 } else{
                     var d = new Date(result[i].time);
                     result[i].time = d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear() + ' - ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
-                }  
+                }   
             }
             res.status(200);
             res.render(__dirname + '/private/post/getComment.ejs' , {data : result});
@@ -353,12 +361,16 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 .then( result => {
                     var now = Date.parse(Date());
 
-                    if(now - result[0].time < 3600000){
+                    if((now - result[0].time)/36000 < 1){
                         result[0].time = parseInt((now - result[0].time)/36000) + ' minutes ago';
+                    } else if((now - result[0].time)/36000/60 > 1 && (now - result[0].time)/36000/60 < 24){
+                        result[0].time = parseInt((now - result[0].time)/36000/60) + ' hours ago';
+                    } else if((now - result[0].time)/36000/60/24 < 15){
+                        result[0].time = parseInt((now - result[0].time)/36000/60/24) + ' days ago';
                     } else{
-                        var d = new Date(result[0].time);
+                        var d = new Date(result[i].time);
                         result[0].time = d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear() + ' - ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
-                    }  
+                    }   
 
                     result.push(username)
 
