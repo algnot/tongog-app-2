@@ -55,12 +55,13 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
     })
 
     app.post('/login' , (req,res) => {
-        if(req.body.email.length > 0 && req.body.password > 7){
+        if(req.body.email.length > 0 && req.body.password.length > 7){
             let email = req.body.email;
-            let password = MD5(req.body.password);
+            let password = req.body.password;
 
-            db.collection('profile-db').find({ 'email' : email , 'password' : password }).toArray()
+            db.collection('profile-db').find({ 'email' : email , 'password' : MD5(password) }).toArray()
             .then(result => {
+                console.log(result);
                 if(result.length != 0){
                     var cookies = new Cookies(req, res, { keys: keys });
                     cookies.set('keyLogin', result[0].generateKey , {maxAge: 3600000*3});
@@ -127,7 +128,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                             db.collection('profile-db').insertOne({ username : req.body.username , 
                                 email : req.body.email , 
                                 password : MD5(req.body.password).toString() , 
-                                generateKey : Math.floor(Math.random() * 100000000000) })
+                                generateKey : Math.floor(Math.random() * 100000000000).toString() })
                             .then( result => {
                                 let userData = {username : req.body.username};
                                 fs.rename('public/img/user/'+req.file.filename,'public/img/user/'+req.body.username+'.jpg', function(err) {
