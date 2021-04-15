@@ -366,7 +366,18 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     reply(reply_token,'Please enter your email.');
                 }
             } else {
-                //keyed email
+                //keyed email -> key password
+                if(result.step == 1){
+                    db.collection('profile-db').find({email : result.email , password:MD5(msg)}).toArray()
+                    .then(result => {
+                        if(result.length == 1){
+                            let username = result[0].username;
+                            db.collection('notify').updateOne({token:reply_token} , { $set: {step:2 , username : username} } , (err, res) => {})
+                        } else {
+                            reply(reply_token,'Password not correct.try again');
+                        }
+                    })
+                }
 
             }
 
