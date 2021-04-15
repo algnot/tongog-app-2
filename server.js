@@ -341,7 +341,29 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
     app.post('/notify' , (req,res) => {
         let reply_token = req.body.events[0].replyToken;
         let msg = req.body.events[0].message.text;
-        reply(reply_token,msg);
+
+        db.collection('notify').find({token:reply_token}).toArray()
+        .then(result => {
+            if(result == 0){
+                if(checkEmail(msg)){
+                    db.collection('profile-db').find({email:msg}).toArray()
+                    .then(result => {
+                        if(result.length == 1){
+                            db.collection('notify').insertOne({token:reply_token , email : msg})
+                            .then(result => {
+                                reply(reply_token,'Hello ' + result.username + '. Please enter password');
+                            })
+                            .catch(error => {
+                                reply(reply_token,'Error. Please try again.');
+                            })
+                        } 
+
+                    })
+                }
+            }
+        })
+
+        
         res.sendStatus(200)
     })
 
@@ -455,4 +477,9 @@ function reply(reply_token,text) {
     }, (err, res, body) => {
         console.log('status = ' + res.statusCode);
     });
+}
+
+function checkEmail(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
 }
