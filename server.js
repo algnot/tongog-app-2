@@ -375,7 +375,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     .then(result => {
                         if(result.length == 1){
                             let username = result[0].username;
-                            db.collection('notify').updateOne({token:reply_token} , { $set: {step:2 , username : username} } , (err, res) => {
+                            db.collection('notify').updateOne({token:user} , { $set: {step:2 , username : username} } , (err, res) => {
                                 if(res){
                                     reply(reply_token,'Ok!');
                                 }
