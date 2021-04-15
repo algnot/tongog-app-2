@@ -350,21 +350,20 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     .then(result => {
                         if(result.length == 1){
                             let username = result[0].username;
-                            db.collection('notify').insertOne({token:reply_token , email : msg})
+                            db.collection('notify').insertOne({token:reply_token , step : 1 , email : msg })
                             .then(result => {
                                 reply(reply_token,'Hello ' + username + '. Please enter password');
                             })
                             .catch(error => {
                                 reply(reply_token,'Error. Please try again.');
                             })
-                        } 
-
+                        } else {
+                            reply(reply_token,'Your email not found.');
+                        }
                     })
                 } else {
                     reply(reply_token,'Please enter your email.');
                 }
-            } else {
-                reply(reply_token,'Your email not found.');
             }
         })
 
