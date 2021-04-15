@@ -340,7 +340,8 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
     app.post('/notify' , (req,res) => {
         let reply_token = req.body.events[0].replyToken;
-        reply(reply_token,'hello world!');
+        let msg = req.body.events[0].message.text;
+        reply(reply_token,msg);
         res.sendStatus(200)
     })
 
