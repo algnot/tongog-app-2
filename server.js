@@ -349,9 +349,10 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     db.collection('profile-db').find({email:msg}).toArray()
                     .then(result => {
                         if(result.length == 1){
+                            let username = result.username;
                             db.collection('notify').insertOne({token:reply_token , email : msg})
                             .then(result => {
-                                reply(reply_token,'Hello ' + result.username + '. Please enter password');
+                                reply(reply_token,'Hello ' + username + '. Please enter password');
                             })
                             .catch(error => {
                                 reply(reply_token,'Error. Please try again.');
