@@ -344,7 +344,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
         db.collection('notify').find({token:reply_token}).toArray()
         .then(result => {
-            if(result == 0){
+            if(result.length == 0){
                 if(checkEmail(msg)){
                     db.collection('profile-db').find({email:msg}).toArray()
                     .then(result => {
