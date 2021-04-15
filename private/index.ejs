@@ -65,6 +65,20 @@
             <div class="post-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
             <div class="post-click" onclick="document.getElementById('post-menu').style.display='flex'">What do you think?</div>
         </div>
+
+        <div id="notify" class="post-one" style="margin-top: 5px;" onclick="window.open('https://page.line.me/?openerPlatform=native&openerKey=urlSchema%3Aexternal&accountId=791yjjto#mst_challenge=fOQSLThspfUXbsEprDLAw8uein3Kr4iSD4FtYqivBBI','_blank');">
+            <div class="post-header">
+                <div class="post-img" style="background-image: url('/img/chatbot.png');"></div>
+                <div class="post-name"> tongog-app-notify <br> [NEW] </div>
+            </div>
+            <div class="post-content" style="font-size: 18px;">
+                You don't have an alert platform yet.
+                Add notification to your add LINE @791yjjto 
+                or click this post!! (This post will disappear if you have a platform for notifications)
+            </div>
+            <div class="comment"> <span id="comment"> 999 <i class="fas fa-comment"></i></span></div>
+        </div>
+
         <div id="root"></div>
         <center><div class="loader-mobile" onclick="hahaha()">load more post</div></center>
         <center><div class="loader"></div></center>
@@ -73,7 +87,9 @@
     <script src="js/index.js"></script>
     <script>
         let count = 3; 
+        let user = '<%= data[0].username %>';
         getPost(count);
+        getNotify(user);
         setInterval(function(){ 
             var user = document.documentElement.scrollTop;
             var window = document.body.scrollHeight;

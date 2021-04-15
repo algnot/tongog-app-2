@@ -206,6 +206,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
             var id = Math.floor(Math.random() * 1000000000);
             db.collection('post-db').insertOne({id:id , username:username , content:content , comment:0 , subPost:0 , time:time })
             .then(result => {
+                sendNotify(username,'You posted some content Can be viewed at https://tongog-app.herokuapp.com/post/'+id);
                 res.redirect('/');
             })
             .catch(error => {
@@ -219,9 +220,9 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
     app.post('/comment' , (req,res)=> {
         var post = url.parse(req.url ,true).query.id; 
         var cookies = new Cookies(req, res, { keys: keys });
-        var username;
         var time = Date.parse(new Date);
         var id = Math.floor(Math.random() * 1000000000);
+        var notifyUser;
 
         if(!cookies.get('keyLogin')){
             res.redirect('/login');
@@ -236,11 +237,13 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         db.collection('post-db').find({id:parseInt(post)}).toArray()
         .then(result => {
             var comment = result[0].comment+1;
+            notifyUser = result[0].username;
             db.collection('post-db').updateOne({id:parseInt(post)} , { $set: {comment:comment} } , (err, res) => {})
         })
 
         db.collection('post-db').insertOne({id:id , username:cookies.get('username') , content:req.body.content , comment:0 , subPost:parseInt(post) , time:time })
         .then(result => {
+            sendNotify(notifyUser,cookies.get('username')+' commented on your post. \n['+req.body.content+']\nYou can see it at https://tongog-app.herokuapp.com/post/'+id);
             res.redirect('/post/'+post);
         })
         .catch(error => {
@@ -314,6 +317,15 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         }) 
     }) 
 
+    app.get('/getNotify' , (req,res)=>{
+        var user = url.parse(req.url ,true).query.username;
+        db.collection('notify').find({username:user}).toArray()
+        .then(result =>{
+            res.status(200);
+            res.json({status : result.length}); 
+        }) 
+    }) 
+
     app.get('/delete' , (req ,res) =>{
         var post = url.parse(req.url ,true).query.id;
         var cookies = new Cookies(req, res, { keys: keys });
@@ -326,7 +338,9 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     var subPost = result[0].subPost * -1;
                     if(subPost == 0){
                         subPost = -1;
+                        sendNotify(username,'You have deleted the post.\n['+result[0].content+']\nSee deleted posts at https://tongog-app.herokuapp.com/post/'+parseInt(post));
                     } else if(subPost == 1){
+                        sendNotify(username,'You have recovery the post.\n['+result[0].content+']\nSee recovery posts at https://tongog-app.herokuapp.com/post/'+parseInt(post));
                         subPost = 0;
                     }
                     db.collection('post-db').updateOne({id:parseInt(post)} , { $set: {subPost:subPost} } , (err, res) => {})
@@ -377,7 +391,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                             let username = result[0].username;
                             db.collection('notify').updateOne({token:user} , { $set: {step:2 , username : username} } , (err, res) => {
                                 if(res){
-                                    reply(reply_token,'Successfully for set up! (username : '+ username +')\nAll notifications will be send here.');
+                                    reply(reply_token,'Successfully for set up! \n(username : '+ username +')\nAll notifications will be send here.');
                                 }
                             }) 
                         } else {
@@ -470,6 +484,14 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         console.log('You can view your app at http://localhost:8080')
     })
 
+    function sendNotify(username,text){
+        db.collection('notify').find({username:username}).toArray()
+        .then(result => {
+            for(var i=0 ; i<result.length ; i++){
+                sendLine(result[i].token,text)
+            }
+        })
+    }
 })
 .catch(error => {
     app.use(function(err, req, res, next){
@@ -500,7 +522,28 @@ function reply(reply_token,text) {
         headers: headers,
         body: body
     }, (err, res, body) => {
-        console.log('status = ' + res.statusCode);
+        // console.log('status = ' + res.statusCode);
+    });
+}
+
+function sendLine(user,text){
+    let headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer {Xw7jDqbGkpTdhiHgcuYt6DskWAuujQ2BdxGKjGl2ESXIritR5c4piFR40zk0GSxBCuVBQHAOj/Avw3zqlVxrb30+nBVqfozz3iWG6B7aKSeN9l+panRto7PI5DQT+o1VmmIOdoZTJ9Gn0Ozpoj1aoAdB04t89/1O/w1cDnyilFU=}'
+    }
+    let body = JSON.stringify({
+        to: user,
+        messages: [{
+            type: 'text',
+            text: text
+        }]
+    })
+    request.post({
+        url: 'https://api.line.me/v2/bot/message/push',
+        headers: headers,
+        body: body
+    }, (err, res, body) => {
+        // console.log('status = ' + res.statusCode);
     });
 }
 
