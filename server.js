@@ -214,7 +214,6 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 res.render(__dirname + '/public/500.ejs');
             })
         })
-
     })
 
     app.post('/comment' , (req,res)=> {
@@ -342,6 +341,12 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     } else if(subPost == 1){
                         sendNotify(username,'You have recovery the post.\n['+result[0].content+']\nSee recovery posts at https://tongog-app.herokuapp.com/post/'+parseInt(post));
                         subPost = 0;
+                    }
+                    if(subPost > 1){
+                        sendNotify(username,'You have recovery the post.\n['+result[0].content+']\nSee recovery posts at https://tongog-app.herokuapp.com/post/'+parseInt(post));
+                    }
+                    if(subPost < -1){
+                        sendNotify(username,'You have deleted the post.\n['+result[0].content+']\nSee deleted posts at https://tongog-app.herokuapp.com/post/'+parseInt(post));
                     }
                     db.collection('post-db').updateOne({id:parseInt(post)} , { $set: {subPost:subPost} } , (err, res) => {})
                     res.redirect('/post/' + post);
