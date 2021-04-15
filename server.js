@@ -342,6 +342,8 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         let reply_token = req.body.events[0].replyToken;
         let msg = req.body.events[0].message.text;
 
+        reply(reply_token,req.body.events[0]);
+
         db.collection('notify').find({token:reply_token}).toArray()
         .then(result => {
             //new user
