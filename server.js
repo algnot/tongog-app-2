@@ -127,7 +127,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                             db.collection('profile-db').insertOne({ username : req.body.username , 
                                 email : req.body.email , 
                                 password : MD5(req.body.password).toString() , 
-                                generateKey : Math.random().toString(30).slice(-16) })
+                                generateKey : Math.floor(Math.random() * 100000000000) })
                             .then( result => {
                                 let userData = {username : req.body.username};
                                 fs.rename('public/img/user/'+req.file.filename,'public/img/user/'+req.body.username+'.jpg', function(err) {
