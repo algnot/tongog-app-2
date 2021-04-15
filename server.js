@@ -370,8 +370,8 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 }
             } else {
                 //keyed email -> key password
-                if(result.step == 1){
-                    db.collection('profile-db').find({email : result.email , password:MD5(msg)}).toArray()
+                if(result[0].step == 1){
+                    db.collection('profile-db').find({email : result[0].email , password:MD5(msg)}).toArray()
                     .then(result => {
                         if(result.length == 1){
                             let username = result[0].username;
