@@ -35,6 +35,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     res.render(__dirname + '/private/index.ejs' , {data : result});
                 } else {
                     cookies.set('keyLogin','',{maxAge:0});
+                    cookies.set('username','',{maxAge:0});
                     res.redirect('/');
                 }   
             })
@@ -72,6 +73,13 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 res.render(__dirname + '/public/500.ejs');
             })
         }
+    })
+
+    app.get('/logout' , (req,res) => {
+        var cookies = new Cookies(req, res, { keys: keys });
+        cookies.set('keyLogin','',{maxAge:0});
+        cookies.set('username','',{maxAge:0});
+        res.redirect('/');
     })
 
     app.get('/checkLogin' , (req,res) => {
@@ -166,8 +174,14 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 res.status(400);
                 res.json({ status: 'The username must contain more than 5 characters!' })
             }else if(result.length==0){
-                res.status(200);
-                res.json({ status: 'OK' })
+                var letters = /^[0-9a-zA-Z]+$/;
+                if(checkUsername.match(letters)){
+                    res.status(200);
+                    res.json({ status: 'OK' })
+                } else {
+                    res.status(400);
+                    res.json({ status: 'The username must contain A-Z , a-z , 0-9 only' })
+                }  
             } else {
                 res.status(400);
                 res.json({ status: checkUsername+' is already exists' })
@@ -209,6 +223,11 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
         if(!cookies.get('keyLogin')){
             res.redirect('/login');
+            return;
+        }
+
+        if(req.body.content == ''){
+            res.redirect('/post/'+post);
             return;
         }
 
@@ -275,12 +294,39 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
     app.get('/getContent' , (req,res)=>{
         var post = url.parse(req.url ,true).query.id;
+        if(post < 0){
+            post *= -1;
+        }
         db.collection('post-db').find({id:parseInt(post)}).toArray()
         .then(result =>{
             res.status(200);
             res.render(__dirname + '/private/post/getReply.ejs' , {data : result});
         }) 
     }) 
+
+    app.get('/delete' , (req ,res) =>{
+        var post = url.parse(req.url ,true).query.id;
+        var cookies = new Cookies(req, res, { keys: keys });
+        db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+        .then(result => {
+            var username = result[0].username;
+            db.collection('post-db').find({id : parseInt(post)}).toArray()
+            .then(result => {
+                if(username == result[0].username){
+                    var subPost = result[0].subPost * -1;
+                    if(subPost == 0){
+                        subPost = -1;
+                    } else if(subPost == 1){
+                        subPost = 0;
+                    }
+                    db.collection('post-db').updateOne({id:parseInt(post)} , { $set: {subPost:subPost} } , (err, res) => {})
+                    res.redirect('/post/' + post);
+                } else {
+                    res.redirect('/post/' + post);
+                }
+            })
+        })
+    })
 
     //5xx
     app.use(function(err, req, res, next){
@@ -316,10 +362,18 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
                     result.push(username)
 
-                    if(result[0].subPost==0){
+                    if(result[0].subPost == 0 || result[0].subPost == -1){
                         result.push({backPage:'/' , titleReply:'home'})
-                    } else {
+                    } else if(result[0].subPost > 0){
                         result.push({backPage:'/post/'+result[0].subPost , titleReply:'   reply form '+result[0].subPost})
+                    } else {
+                        result.push({backPage:'/post/'+(result[0].subPost*-1) , titleReply:'   reply form '+(result[0].subPost*-1)})
+                    }
+
+                    if(result[0].username == result[1].username){
+                        result.push({status:true});
+                    } else {
+                        result.push({status:false});
                     }
 
                     res.status(200);

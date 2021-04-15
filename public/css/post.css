@@ -259,7 +259,84 @@ body{
     color: #d47231;
 }
 
+.con-sta{
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: #0000008a;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-items: center;
+}
 
+.status{
+    background-color: #333333;
+    color: #fff;
+    width: 500px;
+    padding: 30px 50px;
+    border-radius: 40px;
+    font-size: 18px;
+}
+
+.status1{
+    width: fit-content;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.status1:hover{
+    color: #d47231;
+}
+
+.title{
+    text-align: center;
+    font-size: 20px;
+    border-bottom: 1px solid #fff;
+    padding-bottom: 15px;
+}
+
+.Share-head-text{
+    color: #d47231;
+}
+
+#Share{
+    padding: 3px 5px;
+    border-radius: 2px;
+    background-color: #2b2b2b;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: #fff;
+    width: 100%;
+    font-size: 16px;
+}
+
+#Share:hover{
+    background-color: #242424; 
+}
+
+.deletew-confirm{
+    margin: 10px 0;
+    display: none;
+}
+
+.button{
+    background-color: #d47231;
+    width: fit-content;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.button:hover{
+    background-color: #cf7b42;
+}
 
 @media only screen and (max-width: 900px){
     .container{
@@ -287,6 +364,11 @@ body{
 @media only screen and (max-width: 600px){
     .loader{
         margin-bottom: 70px;
+    }
+
+    .status{
+        font-size: 16px;
+        padding: 30px 20px;
     }
 
     .form-comment input[type=text]{

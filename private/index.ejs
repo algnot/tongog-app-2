@@ -14,10 +14,28 @@
        <div class="link active"><i class="fas fa-meteor"></i> Feed</div>
        <div class="link"><i class="fas fa-people-arrows"></i> Message</div>
        <div class="link"><i class="fas fa-satellite"></i> My question</div> 
-       <div class="profile">
+       <div class="profile" onclick="document.getElementById('control').style.display='block'">
            <div class="profile-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
            <div class="profile-name"><%= data[0].username %></div>
        </div>
+    </div>
+
+    <div id="control" style="display: none;">
+        <div class="user" >
+            <div class="control">
+                <div class="go-profile">
+                    <div class="control-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
+                    <div style="padding-left: 20px;">
+                        <%= data[0].username %> <br>
+                        go to profile
+                    </div>
+                </div>
+                <div class="control-link" onclick="document.getElementById('control').style.display='none'"><i class="fas fa-meteor"></i> Bact to feed</div>
+                <!-- <div class="control-link"><i class="fas fa-code"></i> tongog API</div> -->
+                <!-- <div class="control-link"><i class="fas fa-sliders-h"></i> Setting</div> -->
+                <div class="control-link" onclick="window.location.href='/logout'"><i class="fas fa-sign-out-alt"></i> Log out</div>
+            </div>
+        </div>
     </div>
 
     <div class="container-top-post" id="post-menu">
@@ -48,9 +66,9 @@
             <div class="post-click" onclick="document.getElementById('post-menu').style.display='flex'">What do you think?</div>
         </div>
         <div id="root"></div>
+        <center><div class="loader-mobile" onclick="hahaha()">load more post</div></center>
         <center><div class="loader"></div></center>
     </div>
-
 
     <script src="js/index.js"></script>
     <script>
@@ -65,6 +83,11 @@
                 getPost(count);
             }
         }, 1000);
+
+        function hahaha(){
+            count++;
+            getPost(count);
+        }
 
         setInterval(function(){ 
             getPost(count);
