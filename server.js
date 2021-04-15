@@ -257,7 +257,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         .then(result => {
             var now = Date.parse(Date());
             for(let i=0 ; i<result.length ; i++){
-                if((now - result[i].time)/36000 < 1){
+                if((now - result[i].time)/36000 < 60){
                     result[i].time = parseInt((now - result[i].time)/36000) + ' minutes ago';
                 } else if((now - result[i].time)/36000/60 > 1 && (now - result[i].time)/36000/60 < 24){
                     result[i].time = parseInt((now - result[i].time)/36000/60) + ' hours ago';
@@ -283,7 +283,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         .then(result => {
             var now = Date.parse(Date());
             for(let i=0 ; i<result.length ; i++){
-                if((now - result[i].time)/36000 < 1){
+                if((now - result[i].time)/36000 < 60){
                     result[i].time = parseInt((now - result[i].time)/36000) + ' minutes ago';
                 } else if((now - result[i].time)/36000/60 > 1 && (now - result[i].time)/36000/60 < 24){
                     result[i].time = parseInt((now - result[i].time)/36000/60) + ' hours ago';
@@ -362,7 +362,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 .then( result => {
                     var now = Date.parse(Date());
 
-                    if((now - result[0].time)/36000 < 1){
+                    if((now - result[0].time)/36000 < 60){
                         result[0].time = parseInt((now - result[0].time)/36000) + ' minutes ago';
                     } else if((now - result[0].time)/36000/60 > 1 && (now - result[0].time)/36000/60 < 24){
                         result[0].time = parseInt((now - result[0].time)/36000/60) + ' hours ago';
