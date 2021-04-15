@@ -61,7 +61,7 @@ function checkStep3(){
     let password = document.getElementById('password').value
     let confirm_password = document.getElementById('confirm_password').value
     if(password != confirm_password){
-        document.getElementById('wrong3').innerHTML = 'The password not math!'
+        document.getElementById('wrong3').innerHTML = 'The password not match!'
         document.getElementById('wrong3').style.color = '#F1948A'
     } else if(password.length < 8){
         document.getElementById('wrong3').innerHTML = 'The password must contain more than 8 characters!'
