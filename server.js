@@ -363,6 +363,8 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 } else {
                     reply(reply_token,'Please enter your email.');
                 }
+            } else {
+                reply(reply_token,'Your email not found.');
             }
         })
 
