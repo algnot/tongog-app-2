@@ -389,6 +389,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                         result.push({status:false});
                     }
 
+                    console.log(result);
                     res.status(200);
                     res.render(__dirname + '/private/post/post.ejs' , {data:result});
                     return;   
