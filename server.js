@@ -341,6 +341,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
     app.post('/notify' , (req,res) => {
         let reply_token = req.body.events[0].replyToken;
         let msg = req.body.events[0].message.text;
+        let user = req.body.events[0].userId;
 
         reply(reply_token,req.body.events[0]);
 
@@ -353,7 +354,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     .then(result => {
                         if(result.length == 1){
                             let username = result[0].username;
-                            db.collection('notify').insertOne({token:reply_token , step : 1 , email : msg })
+                            db.collection('notify').insertOne({token:user , step : 1 , email : msg })
                             .then(result => {
                                 reply(reply_token,'Hello ' + username + '. Please enter password');
                             })
