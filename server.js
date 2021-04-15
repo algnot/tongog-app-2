@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const parse = require('body-parser');
 const url = require('url');
+const request = require('request')
 
 const Cookies = require('cookies');
 const keys = ['catcatcat'];
@@ -337,6 +338,12 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         })
     })
 
+    app.get('/notify' , (req,res) => {
+        let reply_token = req.body.events[0].replyToken;
+        reply(reply_token,'hello world!');
+        res.sendStatus(200)
+    })
+
     //5xx
     app.use(function(err, req, res, next){
         res.status(err.status || 500);
@@ -360,6 +367,13 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
                 db.collection('post-db').find({id : id}).toArray()
                 .then( result => {
+
+                    if(result.length == 0){
+                        res.status(404);
+                        res.render(__dirname + '/public/404.ejs');
+                        return;
+                    }
+
                     var now = Date.parse(Date());
 
                     if((now - result[0].time)/36000 < 60){
@@ -420,3 +434,24 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         console.log('You can view your app at http://localhost:8080')
     })
 })
+
+function reply(reply_token,text) {
+    let headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer {Xw7jDqbGkpTdhiHgcuYt6DskWAuujQ2BdxGKjGl2ESXIritR5c4piFR40zk0GSxBCuVBQHAOj/Avw3zqlVxrb30+nBVqfozz3iWG6B7aKSeN9l+panRto7PI5DQT+o1VmmIOdoZTJ9Gn0Ozpoj1aoAdB04t89/1O/w1cDnyilFU=}'
+    }
+    let body = JSON.stringify({
+        replyToken: reply_token,
+        messages: [{
+            type: 'text',
+            text: text
+        }]
+    })
+    request.post({
+        url: 'https://api.line.me/v2/bot/message/reply',
+        headers: headers,
+        body: body
+    }, (err, res, body) => {
+        console.log('status = ' + res.statusCode);
+    });
+}
