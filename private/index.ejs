@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tongog-app</title>
+    <title>tongog-app</title> 
     <link href="/asset/fontawesome-free/css/all.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="/css/index.css?ver=1">
 </head>
@@ -23,7 +23,7 @@
     <div id="control" style="display: none;">
         <div class="user" >
             <div class="control">
-                <div class="go-profile">
+                <div class="go-profile" onclick="window.location.href='/<%= data[0].username %>'">
                     <div class="control-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
                     <div style="padding-left: 20px;">
                         <%= data[0].username %> <br>

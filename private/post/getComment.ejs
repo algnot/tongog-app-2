@@ -1,7 +1,7 @@
 <% for(var i=0 ; i<data.length ; i++){ %> 
     <div class="sub-post" onclick="window.location.href='/post/<%= data[i].id %>'">
         <div class="post-header" style="margin-top: 0;">
-            <div class="post-img" style="background-image: url('/img/user/<%= data[i].username %>.jpg');"></div>
+            <div class="load-img"><div class="post-img" style="background-image: url('/img/user/<%= data[i].username %>.jpg');"></div></div>
             <div class="post-name"> <%= data[i].username %> <br> <%= data[i].time %> </div>
         </div>
         <div class="comment-text"><%= data[i].content %></div>

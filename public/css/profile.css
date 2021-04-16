@@ -1,0 +1,32 @@
+.container{
+    margin: 0 150px;
+}
+
+.header{
+    background-color: #272727;
+    margin-top: 20px;
+    padding: 30px;
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+    border-radius: 30px;
+}
+
+.load-profile{
+    width: 200px;
+    height: 200px; 
+    border-radius: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-image: url('/img/profile.png');
+}
+
+.header-img{
+    width: 200px;
+    height: 200px; 
+    border-radius: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}

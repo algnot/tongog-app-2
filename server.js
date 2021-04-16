@@ -62,7 +62,6 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
             db.collection('profile-db').find({ 'email' : email , 'password' : MD5(password) }).toArray()
             .then(result => {
-                console.log(result);
                 if(result.length != 0){
                     var cookies = new Cookies(req, res, { keys: keys });
                     cookies.set('keyLogin', result[0].generateKey , {maxAge: 3600000*3});
@@ -470,7 +469,6 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                         result.push({status:false});
                     }
 
-                    console.log(result);
                     res.status(200);
                     res.render(__dirname + '/private/post/post.ejs' , {data:result});
                     return;   
@@ -478,6 +476,24 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
             }) 
 
+        } else {
+            action = action.replace('/','');
+            db.collection('profile-db').find({username:action}).toArray()
+            .then(result => {
+
+                if(result.length == 0){
+                    res.status(404);
+                    res.render(__dirname + '/public/404.ejs');
+                    return;
+                }
+                
+                result.push({username : cookies.get('username')});
+
+
+                res.status(404);
+                res.render(__dirname + '/private/account/profile.ejs' , {data:result});
+                console.log(result);
+            })
         }
 
         // res.status(404);
