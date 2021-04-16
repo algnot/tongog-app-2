@@ -75,7 +75,11 @@
                         </div>
                     </div>
                 <% } else { %> 
-                    <span class="send-message">send message</span>
+                        <% if(data[1].username) {%> 
+                            <span class="send-message" >send message</span>
+                        <% }  else { %>
+                            <span class="send-message" onclick="window.location.href='/login?href=/<%= data[0].username %>'">send message</span>
+                        <% } %>
                 <% } %> 
             </div>
         </div>
