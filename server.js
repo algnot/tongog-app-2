@@ -149,6 +149,21 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         }
     })
 
+    app.post('/changProfile' , upload.single('profile-image') , (req,res) => {
+        var cookies = new Cookies(req, res, { keys: keys });
+        db.collection('profile-db').find({username:cookies.get('username') , generateKey:cookies.get('keyLogin')}).toArray()
+        .then(result => {
+            if(result.length == 1){
+                fs.rename('public/img/user/'+req.file.filename,'public/img/user/'+result[0].username+'.jpg', function(err) {
+                    res.redirect('/'+result[0].username);
+                });
+            } else {
+                res.status(err.status || 500);
+                res.render(__dirname + '/public/500.ejs');
+            }
+        })
+    })
+
     app.get('/checkEmail' , (req,res) => {
         let checkEmail = url.parse(req.url ,true).query.email;
         db.collection('profile-db').find({email:checkEmail}).toArray()

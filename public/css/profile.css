@@ -194,6 +194,72 @@
     text-align: center;
 }
 
+.formImg{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background-color: #0f0c0a86;
+    width: 100vw;
+    height: 100vh;
+}
+
+.formImg .form{
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.formImg .form form{
+    padding: 20px;
+    border-radius: 20px;
+    background-color: #272727;
+}
+
+.formImg .form form .text{
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.formImg .form form input{
+    width: 100%;
+    margin-top: 25px;
+    font-size: 16px;
+}
+
+.formImg .form form button{
+    width: 100%;
+    margin-top: 25px;
+    padding: 5px 0;
+    border: 1px solid transparent ;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    background-color: #13AA52;
+    color: #fff;
+}
+
+.formImg .form form button:hover{
+    background-color: #119c4b;
+}
+
+.formImg .form form .button{
+    width: 100%;
+    margin-top: 10px;
+    padding: 5px 0;
+    border: 1px solid transparent ;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    background-color: #aa2a13;
+    color: #fff;
+    text-align: center;
+}
+
+.formImg .form form .button:hover{
+    background-color: #a0250f;
+}
 
 @keyframes spin {
     0% { transform: rotate(0deg); }

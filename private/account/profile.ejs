@@ -49,8 +49,27 @@
                 <% if(data[0].username == 'algnot'){ %> 
                     <span class="admin">admin</span> 
                 <% } %> <br>
-                <span class="info"><%= data[0].post %></span>  post  <span class="info"><%= data[0].comment %></span> comment <br>
-                <div class="send-message">send message</div>
+                <span class="info"><%= data[0].post %></span>  post  <span class="info"><%= data[0].comment %></span> comment <br>    
+                <% if(data[0].username == data[1].username){ %> 
+                    <span class="send-message" onclick="document.getElementById('changProfile').style.display='block'">chang profile image</span>
+                    <div id="changProfile" class="formImg" style="display: none;">
+                        <div class="form">
+                            <form action="/changProfile" method="post" enctype="multipart/form-data">
+                                <div class="text">Insert image here</div>
+                                <center>
+                                    <div class="load-profile"> 
+                                        <div class="header-img" id="preview-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
+                                    </div>
+                                </center>
+                                <input type='file' accept="image/*" id='upload-img' name="profile-image" required/>
+                                <button type="submit">chang image</button>
+                                <div class="button" onclick="document.getElementById('changProfile').style.display='none'">cancel</div>
+                            </form>
+                        </div>
+                    </div>
+                <% } else { %> 
+                    <span class="send-message">send message</span>
+                <% } %> 
             </div>
         </div>
 
@@ -120,6 +139,18 @@
             };
             xhttp.open("GET", '/getUserPost?limit='+limit + '&user=<%= data[0].username %>&mode='+mode, true);
             xhttp.send();
+        }
+
+        document.getElementById('upload-img').addEventListener('change', readURL, true);
+        function readURL(){
+            var file = document.getElementById("upload-img").files[0];
+            var reader = new FileReader();
+            reader.onloadend = function(){
+               document.getElementById('preview-img').style.backgroundImage = "url(" + reader.result + ")";  
+            }
+            if(file){
+               reader.readAsDataURL(file);
+            }
         }
     </script>
 </body>
