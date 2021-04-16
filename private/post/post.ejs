@@ -11,7 +11,7 @@
 <body>
     <div class="navigation">
         <div class="link" onclick="window.location.href='/' "><i class="fas fa-meteor"></i> Feed</div>
-        <div class="link"><i class="fas fa-people-arrows"></i> Message</div>
+        <div class="link" onclick="window.location.href='/chat'" ><i class="fas fa-people-arrows"></i> Message</div>
         <div class="link"><i class="fas fa-satellite"></i> My question</div> 
         <% if(data[1].username!='none') {%> 
             <div class="profile" onclick="document.getElementById('control').style.display='block'">

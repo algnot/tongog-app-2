@@ -463,6 +463,22 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         res.sendStatus(200)
     })
 
+    app.get('/chat' , (req,res) => {
+        var cookies = new Cookies(req, res, { keys: keys });
+
+        db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+        .then(result => {
+            var send = [];
+
+            send.push({username : result[0].username , privateCode : result[0].generateKey});
+
+
+            console.log(send);
+            res.status(200);
+            res.render(__dirname + '/private/chat/chat.ejs' , {data:send});
+        })
+    })
+
     //5xx
     app.use(function(err, req, res, next){
         res.status(err.status || 500);
