@@ -64,8 +64,8 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
             .then(result => {
                 if(result.length != 0){
                     var cookies = new Cookies(req, res, { keys: keys });
-                    cookies.set('keyLogin', result[0].generateKey , {maxAge: 3600000*3});
-                    cookies.set('username', result[0].username , {maxAge: 3600000*3});
+                    cookies.set('keyLogin', result[0].generateKey , {maxAge: 3600000*3*10});
+                    cookies.set('username', result[0].username , {maxAge: 3600000*3*10});
                     res.redirect('/');
                 }
             })
@@ -281,8 +281,15 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         var limit = url.parse(req.url ,true).query.limit;
         var user = url.parse(req.url ,true).query.user;
         var cookies = new Cookies(req, res, { keys: keys });
+        var mode = url.parse(req.url ,true).query.mode;
+
+        if(mode == 1){
+            mode = { $gt: 0 };
+        } else {
+            mode = 0;
+        }
  
-        db.collection('post-db').find({subPost:0 , username : user}).sort({time: -1}).limit(parseInt(limit)).toArray()
+        db.collection('post-db').find({subPost:mode , username : user}).sort({time: -1}).limit(parseInt(limit)).toArray()
         .then(result => {
             var now = Date.parse(Date());
             for(let i=0 ; i<result.length ; i++){

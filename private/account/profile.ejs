@@ -54,6 +54,11 @@
             </div>
         </div>
 
+        <div class="menu">
+            <div class="link active" onclick="aaaaa('0')" id="p"><i class="fas fa-file-powerpoint"></i> post</div>
+            <div class="link" onclick="aaaaa('1')" id="c"><i class="fas fa-comments"></i> comment</div>
+        </div>
+
         <div id="post"></div>
         <center><div class="loader-mobile" id="loader-mobile" onclick="hahaha()">load more post</div></center>
         <center><div class="loader" id="loader"></div></center>
@@ -61,6 +66,7 @@
 
     <script>
         let count = 3; 
+        var mode = 0;
 
         getPost(count);
         setInterval(function(){ 
@@ -82,6 +88,20 @@
             getPost(count);
         }, 30000);
 
+        function aaaaa(md){
+            mode = md;
+            console.log(md);
+            if(md == 0){
+                document.getElementById("c").classList.remove("active");
+                document.getElementById("p").classList.add("active");
+            } 
+            if(md == 1){
+                document.getElementById("p").classList.remove("active");
+                document.getElementById("c").classList.add("active");
+            }
+            getPost(count);
+        }
+
         function getPost(limit){
             if(count >= parseInt('<%= data[0].post %>' && count!=3)){
                 document.getElementById('loader-mobile').style.display = 'none';
@@ -98,7 +118,7 @@
                     }
                 }
             };
-            xhttp.open("GET", '/getUserPost?limit='+limit + '&user=<%= data[0].username %>', true);
+            xhttp.open("GET", '/getUserPost?limit='+limit + '&user=<%= data[0].username %>&mode='+mode, true);
             xhttp.send();
         }
     </script>

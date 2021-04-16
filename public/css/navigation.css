@@ -37,6 +37,11 @@ body{
     border-radius: 20px;
 }
 
+.active{
+    color: #F4D03F;
+    cursor: context-menu;
+}
+
 .active:hover{
     background-color: transparent;
 }
