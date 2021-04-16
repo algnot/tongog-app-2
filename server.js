@@ -277,6 +277,32 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
  
     })
 
+    app.get('/getUserPost' , (req,res) => {
+        var limit = url.parse(req.url ,true).query.limit;
+        var user = url.parse(req.url ,true).query.user;
+        var cookies = new Cookies(req, res, { keys: keys });
+ 
+        db.collection('post-db').find({subPost:0 , username : user}).sort({time: -1}).limit(parseInt(limit)).toArray()
+        .then(result => {
+            var now = Date.parse(Date());
+            for(let i=0 ; i<result.length ; i++){
+                if((now - result[i].time)/36000 < 60){
+                    result[i].time = parseInt((now - result[i].time)/36000) + ' minutes ago';
+                } else if((now - result[i].time)/36000/60 > 1 && (now - result[i].time)/36000/60 < 24){
+                    result[i].time = parseInt((now - result[i].time)/36000/60) + ' hours ago';
+                } else if((now - result[i].time)/36000/60/24 < 15){
+                    result[i].time = parseInt((now - result[i].time)/36000/60/24) + ' days ago';
+                } else{
+                    var d = new Date(result[i].time);
+                    result[i].time = d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear() + ' - ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+                }  
+            }
+            result.push({user : cookies.get('username') });
+            res.status(200);
+            res.render(__dirname + '/private/post/getPost.ejs' , {data : result});
+        })
+    });
+
     app.get('/getComment' , (req,res)=>{
         var post = url.parse(req.url ,true).query.id;
         var limit = url.parse(req.url ,true).query.limit;

@@ -19,6 +19,16 @@ body{
 }
 
 .load-img{
+    width: 30px;
+    height: 30px; 
+    border-radius: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-image: url('/img/profile.png');
+}
+
+.load-img2{
     width: 40px;
     height: 40px; 
     border-radius: 100%;
@@ -391,10 +401,6 @@ body{
 @media only screen and (max-width: 600px){
     .control{
         padding: 30px 10px;
-    }
-
-    .loader{
-        margin-bottom: 70px;
     }
 
     .navigation{

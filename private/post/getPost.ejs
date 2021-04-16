@@ -2,9 +2,9 @@
 
     <div class="post-one" style="margin-top: 5px;" onclick="window.location.href='/post/<%= data[i].id %>'">
         <div class="post-header">
-            <div class="load-img"><div class="post-img" style="background-image: url('/img/user/<%= data[i].username %>.jpg');"></div></div>
+            <div class="load-img2"><div class="post-img" style="background-image: url('/img/user/<%= data[i].username %>.jpg');"></div></div>
             <div class="post-name"> <%= data[i].username %> <br> <%= data[i].time %> </div>
-        </div>
+        </div> 
         <div class="post-content">
             <%= data[i].content.substring(0,150) %>
         </div>

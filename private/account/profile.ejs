@@ -53,7 +53,45 @@
                 <div class="send-message">send message</div>
             </div>
         </div>
-
+        
+        <div id="post"></div>
+        <center><div class="loader-mobile" onclick="hahaha()">load more post</div></center>
+        <center><div class="loader"></div></center>
     </div>
+
+    <script>
+        let count = 3; 
+
+        getPost(count);
+        setInterval(function(){ 
+            var user = document.documentElement.scrollTop;
+            var window = document.body.scrollHeight;
+            var h = screen.height;
+            if(h + user > window+20){
+                count++;
+                getPost(count);
+            }
+        }, 1000);
+
+        function hahaha(){
+            count += 5;
+            getPost(count);
+        }
+
+        setInterval(function(){ 
+            getPost(count);
+        }, 30000);
+
+        function getPost(limit){
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   document.getElementById("post").innerHTML = xhttp.responseText;
+                }
+            };
+            xhttp.open("GET", '/getUserPost?limit='+limit + '&user=<%= data[0].username %>', true);
+            xhttp.send();
+        }
+    </script>
 </body>
 </html>
