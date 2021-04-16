@@ -272,16 +272,18 @@ body{
     padding: 20px;
     border-radius: 20px;
     margin: 20px auto;
-    cursor: pointer;
-}
-
-.post-one:hover{
-    background-color: #252525;
 }
 
 .post-header{
     display: grid;
     grid-template-columns: 50px 1fr;
+    border-radius: 20px;
+}
+
+.pro{
+    width: fit-content;
+    padding: 0 10px 0 0;
+    cursor: pointer;
 }
 
 .post-name{
@@ -297,6 +299,7 @@ body{
     text-align: justify;
     color: #fff;
     font-size: 20px;
+    cursor: pointer;
 }
 
 .loader {
@@ -390,6 +393,10 @@ body{
 .control-link:hover{
     color: #E59866;
     cursor: pointer;
+}
+
+.pro:hover{
+    background-color: #e5996634;
 }
 
 @keyframes spin {

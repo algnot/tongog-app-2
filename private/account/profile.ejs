@@ -53,10 +53,10 @@
                 <div class="send-message">send message</div>
             </div>
         </div>
-        
+
         <div id="post"></div>
-        <center><div class="loader-mobile" onclick="hahaha()">load more post</div></center>
-        <center><div class="loader"></div></center>
+        <center><div class="loader-mobile" id="loader-mobile" onclick="hahaha()">load more post</div></center>
+        <center><div class="loader" id="loader"></div></center>
     </div>
 
     <script>
@@ -83,10 +83,19 @@
         }, 30000);
 
         function getPost(limit){
+            if(count >= parseInt('<%= data[0].post %>' && count!=3)){
+                document.getElementById('loader-mobile').style.display = 'none';
+                document.getElementById('loader').style.display = 'none';
+                return;
+            }
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
-                   document.getElementById("post").innerHTML = xhttp.responseText;
+                    document.getElementById("post").innerHTML = xhttp.responseText;
+                    if(count >= parseInt('<%= data[0].post %>')){
+                        document.getElementById('loader-mobile').style.display = 'none';
+                        document.getElementById('loader').style.display = 'none';
+                    }
                 }
             };
             xhttp.open("GET", '/getUserPost?limit='+limit + '&user=<%= data[0].username %>', true);

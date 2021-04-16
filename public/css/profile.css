@@ -156,6 +156,7 @@
 
 #post{
     margin-top: 30px;
+    margin-bottom: 80px;
 }
 
 .post-click:hover{
@@ -206,6 +207,37 @@
 
     .loader{
         display: none;
+    }
+
+    .container{
+        margin: 0 auto;
+        width: 95vw;
+    }
+
+    .header{
+        margin-top: 20px;
+        padding: 30px;
+        display: grid;
+        grid-template-columns: 1fr;
+        border-radius: 30px;
+    }
+    
+    .load-profile{
+        margin: 0 auto;
+        width: 50vw;
+        height: 50vw; 
+    }
+
+    .header-text{
+        font-size: 25px;
+        margin-left: 0;
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .send-message{
+        margin: 0 auto;
+        margin-top: 20px;
     }
 }
 

@@ -1,15 +1,15 @@
 <% for(var i = 0; i < data.length-1; i++) {%>
 
-    <div class="post-one" style="margin-top: 5px;" onclick="window.location.href='/post/<%= data[i].id %>'">
-        <div class="post-header">
+    <div class="post-one" style="margin-top: 5px;">
+        <div class="post-header pro" onclick="window.location.href='/<%= data[i].username %>'">
             <div class="load-img2"><div class="post-img" style="background-image: url('/img/user/<%= data[i].username %>.jpg');"></div></div>
             <div class="post-name"> <%= data[i].username %> <br> <%= data[i].time %> </div>
         </div> 
-        <div class="post-content">
+        <div class="post-content" onclick="window.location.href='/post/<%= data[i].id %>'">
             <%= data[i].content.substring(0,150) %>
         </div>
-        <div class="comment"> <span id="comment"><%= data[i].comment %> <i class="fas fa-comment"></i></span></div>
-        <div class="post-header" style="margin-top: 20px;">
+        <div class="comment" onclick="window.location.href='/post/<%= data[i].id %>'"> <span id="comment"><%= data[i].comment %> <i class="fas fa-comment"></i></span></div>
+        <div class="post-header" style="margin-top: 20px;" onclick="window.location.href='/post/<%= data[i].id %>'">
             <div class="post-img" style="background-image: url('/img/user/<%= data[data.length-1].user %>.jpg');"></div>
             <div class="post-click" onclick="window.location.href='/post/<%= data[i].id %>'">comment now!</div>
         </div>    
