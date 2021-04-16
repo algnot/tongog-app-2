@@ -480,19 +480,31 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
             action = action.replace('/','');
             db.collection('profile-db').find({username:action}).toArray()
             .then(result => {
+                var send = [];
+                let post = 0 , comment = 0;
 
                 if(result.length == 0){
                     res.status(404);
                     res.render(__dirname + '/public/404.ejs');
                     return;
                 }
-                
-                result.push({username : cookies.get('username')});
 
+                db.collection('post-db').find({username:action , subPost:0}).toArray()
+                .then(result => {
+                    post = result.length;
 
-                res.status(404);
-                res.render(__dirname + '/private/account/profile.ejs' , {data:result});
-                console.log(result);
+                    db.collection('post-db').find({username:action , subPost: { $gt: 0 }}).toArray()
+                    .then(result => {
+                        comment = result.length;
+
+                        send.push({username : action , post : parseInt(post) , comment : parseInt(comment)});
+                        send.push({username : cookies.get('username')});
+
+                        console.log(send);
+                        res.status(200);
+                        res.render(__dirname + '/private/account/profile.ejs' , {data:send});
+                    }) 
+                })      
             })
         }
 

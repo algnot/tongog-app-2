@@ -44,7 +44,14 @@
             <div class="load-profile"> 
                 <div class="header-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div>
             </div>
-            <div class="header-text"><%= data[0].username %></div>
+            <div class="header-text">
+                <%= data[0].username %> 
+                <% if(data[0].username == 'algnot'){ %> 
+                    <span class="admin">admin</span> 
+                <% } %> <br>
+                <span class="info"><%= data[0].post %></span>  post  <span class="info"><%= data[0].comment %></span> comment <br>
+                <div class="send-message">send message</div>
+            </div>
         </div>
 
     </div>
