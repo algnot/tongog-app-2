@@ -67,7 +67,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     var cookies = new Cookies(req, res, { keys: keys });
                     cookies.set('keyLogin', result[0].generateKey , {maxAge: 3600000*3*10});
                     cookies.set('username', result[0].username , {maxAge: 3600000*3*10});
-                    if(href != ''){
+                    if(href){
                         res.redirect(href);
                     } else {
                         res.redirect('/');
