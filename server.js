@@ -56,6 +56,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
     })
 
     app.post('/login' , (req,res) => {
+        let href = url.parse(req.url ,true).query.href;
         if(req.body.email.length > 0 && req.body.password.length > 7){
             let email = req.body.email;
             let password = req.body.password;
@@ -66,7 +67,11 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     var cookies = new Cookies(req, res, { keys: keys });
                     cookies.set('keyLogin', result[0].generateKey , {maxAge: 3600000*3*10});
                     cookies.set('username', result[0].username , {maxAge: 3600000*3*10});
-                    res.redirect('/');
+                    if(href != ''){
+                        res.redirect(href);
+                    } else {
+                        res.redirect('/');
+                    }
                 }
             })
             .catch(err=>{
@@ -238,7 +243,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         var notifyUser;
 
         if(!cookies.get('keyLogin')){
-            res.redirect('/login');
+            res.redirect('/login?href=/post/'+post);
             return;
         }
 

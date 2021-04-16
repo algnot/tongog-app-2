@@ -13,10 +13,17 @@
         <div class="link" onclick="window.location.href='/' "><i class="fas fa-meteor"></i> Feed</div>
         <div class="link"><i class="fas fa-people-arrows"></i> Message</div>
         <div class="link"><i class="fas fa-satellite"></i> My question</div> 
-        <div class="profile" onclick="document.getElementById('control').style.display='block'">
-            <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/<%= data[1].username %>.jpg');"></div></div>
-            <div class="profile-name"><%= data[1].username %></div>
-        </div>
+        <% if(data[1].username!='none') {%> 
+            <div class="profile" onclick="document.getElementById('control').style.display='block'">
+                <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/<%= data[1].username %>.jpg');"></div></div>
+                <div class="profile-name"><%= data[1].username %></div>
+            </div>
+        <% } else { %> 
+            <div class="profile" onclick="window.location.href='/login?href=/post/<%= data[0].id %>'">
+                <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/<%= data[1].username %>.jpg');"></div></div>
+                <div class="profile-name"><%= data[1].username %></div>
+            </div>
+        <% } %> 
      </div>
  
      <div id="control" style="display: none;">

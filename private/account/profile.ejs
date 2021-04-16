@@ -21,7 +21,7 @@
                 <div class="profile-name"><%= data[1].username %></div>
             </div>
         <% }  else { %> 
-            <div class="profile" onclick="window.location.href='/'">
+            <div class="profile" onclick="window.location.href='/login?href=/<%= data[0].username %>'">
                 <div class="profile-img" style="background-image: url('/img/user/none.jpg');"></div>
                 <div class="profile-name">none</div>
             </div>
