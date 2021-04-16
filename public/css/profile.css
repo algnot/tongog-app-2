@@ -30,3 +30,9 @@
     background-size: cover;
     background-repeat: no-repeat;
 }
+
+.header-text{
+    color: #F4D03F;
+    font-size: 25px;
+    margin-left: 30px;
+}
