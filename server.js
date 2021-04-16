@@ -68,12 +68,12 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     cookies.set('keyLogin', result[0].generateKey , {maxAge: 3600000*3*10});
                     cookies.set('username', result[0].username , {maxAge: 3600000*3*10});
                     if(href){
-                        res.redirect(href);
+                         res.redirect(href);
                     } else {
                         res.redirect('/');
                     }
                 }
-            })
+            }) 
             .catch(err=>{
                 res.status(500);
                 res.render(__dirname + '/public/500.ejs');
