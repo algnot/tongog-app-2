@@ -41,16 +41,52 @@
 
     <div class="container">
         <div class="inbox">
-            <div class="grid">
-              gmemetlg  
-            </div>
+            <div class="inbox-head">Inbox</div>
+            <span id="chat"></span>
+
+            <!-- <div class="grid">
+                <div class="load-img"><div class="control-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"><i class="fas fa-circle dot"></i></div></div>
+                <div class="user-info">
+                    <span class="user-name"><%= data[0].username %> </span> <br>
+                    <div class="last-text">Hello world</div>
+                </div>
+            </div> -->
         </div>
-        <div id="root"></div>
+        
+        <div class="chat-content">
+
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io();
+
+      socket.on('<%= data[0].privateCode %>', function(msg) {
+        let temp = msg;
+        let user = [];
+
+        for(var i=0 ; i < temp.length ; i++){
+            var state = 1;
+            for(var j=0 ; j < user.length ; j++){
+                if(temp[i].form == user[j].form && i != j){
+                    state = 0;
+                } 
+            }
+            if(state == 1){
+                user.push(temp[i]);
+            }
+        }
+
+        document.getElementById('chat').innerHTML = '';
+        for(var i=0 ; i<user.length ; i++){
+            if(user[i].status == 0){
+                document.getElementById('chat').innerHTML += '<div class="grid"><div class="load-img2"><div class="control-img" style="background-image: url(\'/img/user/'+user[i].form+'.jpg\');"><i class="fas fa-circle dot"></i></div></div><div class="user-info"><span class="user-name">'+user[i].form+'</span> <br><div class="last-text">'+user[i].text+'</div></div></div>'
+            } else {
+                document.getElementById('chat').innerHTML += '<div class="grid"><div class="load-img2"><div class="control-img" style="background-image: url(\'/img/user/'+user[i].form+'.jpg\');"><i class="fas fa-circle dot"></i></div></div><div class="user-info"><span class="user-name">'+user[i].form+'</span> <br><div class="readed">'+user[i].text+'</div></div></div>'
+            }
+        }
+      });
     </script>
 
 </body>

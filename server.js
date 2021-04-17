@@ -493,14 +493,22 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         .then(result => {
             var send = [];
             send.push({username : result[0].username , privateCode : result[0].generateKey});
-            console.log(send);
             res.status(200);
             res.render(__dirname + '/private/chat/chat.ejs' , {data:send});
         })
+        
 
         io.on('connection', (socket) => { 
+
             db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
             .then(result => {
+
+                db.collection('chat-db').find({$or : [{ch1:cookies.get('keyLogin')} , {ch2:cookies.get('keyLogin')}]}).sort( { time: -1 } ).toArray()
+                .then(result => {
+                    // console.log(result);
+                    io.emit(cookies.get('keyLogin'),result);
+                })
+
                 db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'ON'} } , (err, res) => {})
                 socket.on('disconnect', () => {
                     db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'OFF'} } , (err, res) => {})
