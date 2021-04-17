@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>chat</title>
+    <title id="title">chat | main</title>
     <link href="/asset/fontawesome-free/css/all.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="/css/navigation.css">
     <link rel="stylesheet" href="/css/chat.css">
@@ -44,38 +44,128 @@
             <div class="inbox-head">Inbox</div>
             <span id="chat"></span>
 
-            <div class="grid" onclick="loadChat('kungfu')">
+            <!-- <div class="grid" onclick="loadChat('kungfu')">
                 <div class="load-img"><div class="control-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"><i class="fas fa-circle dot"></i></div></div>
                 <div class="user-info">
                     <span class="user-name"><%= data[0].username %> </span> <br>
                     <div class="last-text">Hello world</div>
                 </div>
-            </div>
+            </div> -->
         </div>
         
         <div class="chat-content">
-            <div class="chat-header">
-                <div class="load-img2"><div class="control-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div></div>
-                <div class="header-name"><%= data[0].username %></div>
+            <div class="chat-header" onclick="go()">
+                <div class="load-img2" id="bg-user"></div>
+                <div class="header-name" id="name-user">bot chat</div>
             </div>    
 
-            <div class="chat-text">
-                <div class="sender">Hello world</div>
-                <div class="receiver">Hello world</div>
-                
+            <div class="chat-text" id="content">
+                <div class="sender">You can talk to everyone through this channel.</div>
+                <div class="receiver">Let's get started!</div>   
+                <!-- <div class="sender">Chat with people via bot as simple as typing -chat {username} <br> Ex. -chat algnot</div>    -->
             </div>
-
-            <input type="text" placeholder="enter text here ...">
-            <button type="submit">send</button>
+            <form id="form" action="">
+                <input id="input" autocomplete="off" type="text" placeholder="enter text here ...">
+                <button type="submit">send</button>
+            </form>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io();
-      socket.emit('connect','<%= data[0].username %>');
+        var socket = io();
+        var user = 0 , pri=0;
+        socket.emit('connect server', '<%= data[0].privateCode %>');
 
+        socket.on('chat<%= data[0].privateCode %>', (msg) =>  {
+            var user = [];
+            console.log(msg); 
+            for(var i=0 ; i<msg.length ; i++){
+                var state = 0;
+                for(var j=0 ; j<user.length ; j++){
+                    if((msg[i].form == user[j].form) || msg[i].form == '<%= data[0].username %>'){
+                        state = 1;
+                    }      
+                } 
+                if(state == 0){
+                    user.push(msg[i]);
+                } 
+            }
 
+            for(var i=0 ; i<msg.length ; i++){
+                var state = 0;
+                for(var j=0 ; j<user.length ; j++){
+                    if((msg[i].to == user[j].form) || msg[i].to == '<%= data[0].username %>'){
+                        state = 1;
+                    }      
+                } 
+                if(state == 0){
+                    user.push(msg[i]);
+                } 
+            }
+            
+
+            document.getElementById('chat').innerHTML = ''; 
+            for(var i=0 ; i<user.length ; i++){
+                if(user[i].form == '<%= data[0].username %>'){
+                    user[i].form = user[i].to;
+                    user[i].ch1 = user[i].ch2;
+                }
+                if(user[i].status==0){
+                    document.getElementById('chat').innerHTML += '<div class="grid" onclick="loadChat(\''+user[i].ch1+'\')"><div class="load-img2"><div class="control-img" style="background-image: url(\'/img/user/'+user[i].form+'.jpg\');"><i class="fas fa-circle dot"></i></div></div><div class="user-info"><span class="user-name">'+user[i].form+'</span> <br><div id="'+user[i].ch1+'" class="last-text">'+user[i].text+'</div></div></div>'; 
+                } else {
+                    document.getElementById('chat').innerHTML += '<div class="grid" onclick="loadChat(\''+user[i].ch1+'\')"><div class="load-img2"><div class="control-img" style="background-image: url(\'/img/user/'+user[i].form+'.jpg\');"><i class="fas fa-circle dot"></i></div></div><div class="user-info"><span class="user-name">'+user[i].form+'</span> <br><div id="'+user[i].ch1+'" class="readed">'+user[i].text+'</div></div></div>'; 
+                }
+            }          
+        });
+
+        socket.on('load<%= data[0].privateCode %>', (msg) => {
+            if(msg[0].form=='<%= data[0].username %>'){
+                document.getElementById('bg-user').innerHTML = '<div class="control-img"  style="background-image: url(\'/img/user/'+msg[0].to+'.jpg\');"></div>';
+                document.getElementById('name-user').innerHTML = msg[0].to;
+                user = msg[0].to;
+                document.getElementById('title').innerHTML = 'chat | '+ msg[0].to;
+            } else {
+                document.getElementById('bg-user').innerHTML = '<div class="control-img" style="background-image: url(\'/img/user/'+msg[0].form+'.jpg\');"></div>';
+                document.getElementById('name-user').innerHTML = msg[0].form;
+                user = msg[0].form;
+                document.getElementById('title').innerHTML = 'chat | '+ msg[0].form;
+            }
+
+            document.getElementById('content').innerHTML = '';
+            for(var i=0 ; i<msg.length ; i++){
+                if(msg[i].form == '<%= data[0].username %>'){
+                    document.getElementById('content').innerHTML += '<div class="receiver">'+msg[i].text+'</div>'
+                } else {
+                    document.getElementById('content').innerHTML += '<div class="sender">'+msg[i].text+'</div>'
+                }
+            }
+        })
+
+        form.addEventListener('submit', function(e) {
+            var form = document.getElementById('form');
+            var input = document.getElementById('input');
+
+            e.preventDefault();
+            if(user == 0){
+                document.getElementById('content').innerHTML += '<div class="sender">Please select the user you want to talk :)</div>'
+            } else if (input.value) {
+                socket.emit('send', { form:'<%= data[0].username %>' , to:user , ch1:'<%= data[0].privateCode %>' , ch2:pri , text:input.value});
+                input.value = '';
+            }
+        });
+
+        function loadChat(privateChat){
+            socket.emit('loadChat', {user:'<%= data[0].privateCode %>' , load:privateChat});  
+            document.getElementById('input').innerHTML = '';  
+            document.getElementById(privateChat).style.color = 'rgb(116, 116, 116)';
+            pri = privateChat;
+        }
+
+        function go(){
+            if(user != 0)
+                window.location.href = '/' + user;
+        }
     </script>
 
 </body>

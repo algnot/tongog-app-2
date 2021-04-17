@@ -25,6 +25,7 @@ app.set('view engine','ejs');
 
 const MongoClient = require('mongodb').MongoClient;
 const e = require('express');
+const { send } = require('process');
 MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', { useUnifiedTopology: true })
 .then(client => {
 
@@ -480,17 +481,34 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
     }) 
 
     io.on('connection', (socket) => {
-        console.log('user connected');
-        
-        socket.on('connect', (msg) => {
+        socket.on('connect server', (msg) => {
+          db.collection('chat-db').find({$or : [{ch1:msg},{ch2:msg}] }).sort({time:-1}).toArray()
+          .then(result => {
+                console.log(result); 
+                socket.emit('chat'+msg , result);
+          })
+        })
+ 
+        socket.on('loadChat' , (msg) => {
+            db.collection('chat-db').find( {$and : [ {$or : [{ch1:msg.user},{ch2:msg.user}]} , {$or:[{ch1:msg.load},{ch2:msg.load}]} ] } ).toArray()
+            .then(result => {
+                db.collection('chat-db').updateMany({ $and : [{ch1:msg.load , ch2:msg.user}]} , {$set:{status:1}} , (err,res) =>{})
+                socket.emit('load'+msg.user , result);
+            })
+        })
+
+        socket.on('send' , (msg) => {
             console.log(msg)
-        });
+            db.collection('chat-db').insertOne({form:msg.form ,to:msg.to , ch1:msg.ch1 , ch2:msg.ch2 , time:Date.parse(new Date) , text:msg.text ,status:0})
+            .then(result => {
+                // socket.emit('load'+msg.ch1 , result);
+            })
+        })
 
         socket.on('disconnect', () => {
-          console.log('user disconnected');
-        });
-    });
-
+            console.log('user disconnected')
+        })
+    })
     
 
     //5xx
