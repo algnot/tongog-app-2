@@ -85,6 +85,10 @@
     </div>
 
     <script src="js/index.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+    </script>
     <script>
         let count = 3; 
         let user = '<%= data[0].username %>';

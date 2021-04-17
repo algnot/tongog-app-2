@@ -1,5 +1,9 @@
 const express = require('express');
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const io = require('socket.io')(server);
+
 const parse = require('body-parser');
 const url = require('url');
 const request = require('request')
@@ -43,6 +47,16 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         } else {
             res.redirect('/login');
         }
+
+        io.on('connection', (socket) => { 
+            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+            .then(result => {
+                db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'ON'} } , (err, res) => {})
+                socket.on('disconnect', () => {
+                    db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'OFF'} } , (err, res) => {})
+                })
+            })
+        }) 
     })  
 
     app.get('/login' , (req,res) => {
@@ -233,6 +247,15 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 res.render(__dirname + '/public/500.ejs');
             })
         })
+        io.on('connection', (socket) => { 
+            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+            .then(result => {
+                db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'ON'} } , (err, res) => {})
+                socket.on('disconnect', () => {
+                    db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'OFF'} } , (err, res) => {})
+                })
+            })
+        }) 
     })
 
     app.post('/comment' , (req,res)=> {
@@ -469,15 +492,22 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
         .then(result => {
             var send = [];
-
             send.push({username : result[0].username , privateCode : result[0].generateKey});
-
-
             console.log(send);
             res.status(200);
             res.render(__dirname + '/private/chat/chat.ejs' , {data:send});
         })
-    })
+
+        io.on('connection', (socket) => { 
+            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+            .then(result => {
+                db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'ON'} } , (err, res) => {})
+                socket.on('disconnect', () => {
+                    db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'OFF'} } , (err, res) => {})
+                })
+            })
+        }) 
+    }) 
 
     //5xx
     app.use(function(err, req, res, next){
@@ -542,7 +572,6 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     res.render(__dirname + '/private/post/post.ejs' , {data:result});
                     return;   
                 }) 
-
             }) 
 
         } else {
@@ -577,12 +606,22 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
             })
         }
 
+        io.on('connection', (socket) => { 
+            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+            .then(result => {
+                db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'ON'} } , (err, res) => {})
+                socket.on('disconnect', () => {
+                    db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'OFF'} } , (err, res) => {})
+                })
+            })
+        }) 
+
         // res.status(404);
         // res.render(__dirname + '/public/404.ejs');
     })
 
     //start localhost:8080
-    app.listen(PORT, _ => {
+    server.listen(PORT, _ => {
         console.log('You can view your app at http://localhost:8080')
     })
 
