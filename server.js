@@ -47,16 +47,6 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         } else {
             res.redirect('/login');
         }
-
-        io.on('connection', (socket) => { 
-            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
-            .then(result => {
-                db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'ON'} } , (err, res) => {})
-                socket.on('disconnect', () => {
-                    db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'OFF'} } , (err, res) => {})
-                })
-            })
-        }) 
     })  
 
     app.get('/login' , (req,res) => {
@@ -247,15 +237,6 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 res.render(__dirname + '/public/500.ejs');
             })
         })
-        io.on('connection', (socket) => { 
-            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
-            .then(result => {
-                db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'ON'} } , (err, res) => {})
-                socket.on('disconnect', () => {
-                    db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'OFF'} } , (err, res) => {})
-                })
-            })
-        }) 
     })
 
     app.post('/comment' , (req,res)=> {
@@ -496,26 +477,21 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
             res.status(200);
             res.render(__dirname + '/private/chat/chat.ejs' , {data:send});
         })
-        
-
-        io.on('connection', (socket) => { 
-
-            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
-            .then(result => {
-
-                db.collection('chat-db').find({$or : [{ch1:cookies.get('keyLogin')} , {ch2:cookies.get('keyLogin')}]}).sort( { time: -1 } ).toArray()
-                .then(result => {
-                    // console.log(result);
-                    io.emit(cookies.get('keyLogin'),result);
-                })
-
-                db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'ON'} } , (err, res) => {})
-                socket.on('disconnect', () => {
-                    db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'OFF'} } , (err, res) => {})
-                })
-            })
-        }) 
     }) 
+
+    io.on('connection', (socket) => {
+        console.log('user connected');
+        
+        socket.on('connect', (msg) => {
+            console.log(msg)
+        });
+
+        socket.on('disconnect', () => {
+          console.log('user disconnected');
+        });
+    });
+
+    
 
     //5xx
     app.use(function(err, req, res, next){
@@ -613,19 +589,6 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 })      
             })
         }
-
-        io.on('connection', (socket) => { 
-            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
-            .then(result => {
-                db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'ON'} } , (err, res) => {})
-                socket.on('disconnect', () => {
-                    db.collection('profile-db').updateOne({generateKey:cookies.get('keyLogin')}, { $set: {status:'OFF'} } , (err, res) => {})
-                })
-            })
-        }) 
-
-        // res.status(404);
-        // res.render(__dirname + '/public/404.ejs');
     })
 
     //start localhost:8080
