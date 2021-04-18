@@ -66,6 +66,14 @@
     height: 70vh;
 }
 
+#aaaa{
+    margin-bottom: 10px;
+}
+
+#bbbb{
+    margin-bottom: 10px;
+}
+
 .chat-header{
     display: flex;
     align-items: center;
