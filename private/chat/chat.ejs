@@ -52,12 +52,15 @@
                 <div class="header-name" onclick="go()" id="name-user">bot chat</div>
             </div>    
 
-            <div class="chat-text" id="content">
-                <div class="sender">You can talk to everyone through this channel.</div>
-                <div class="receiver">Let's get started!</div>   
+            <div class="chat-text">
+                <div id="content">
+                    <div class="sender">You can talk to everyone through this channel.</div>
+                    <div class="receiver">Let's get started!</div>   
+                </div>
+                <span id="type"></span>
             </div>
             <form id="form" action="">
-                <input id="input" autocomplete="off" type="text" placeholder="enter text here ...">
+                <input id="input" autocomplete="off" type="text" onkeyup="keyUp()" placeholder="enter text here ...">
                 <button type="submit">send</button>
             </form>
         </div>
@@ -156,6 +159,19 @@
               input.value = '';
             }
         });
+
+        socket.on('keyup:<%= data[0].privateCode %>', (msg) => {
+            if(pri == msg.form){
+                document.getElementById('type').innerHTML = '<div class="sender" style="color : #7D7C7C">typing . .</div>';  
+                setTimeout(()=>{
+                    document.getElementById('type').innerHTML = '';
+                },3000) 
+            }
+        })
+
+        function keyUp(){
+            socket.emit('keyup',{from:'<%= data[0].privateCode %>' , to:pri});   
+        }
 
         function loadChat(privateCode){
             pri = privateCode;

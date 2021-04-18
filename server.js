@@ -558,12 +558,10 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
             })
             io.emit('update:'+msg.ch2 , msg);   
         })
-   
-        socket.on('disconnect', () => {
-            console.log('user disconnected')
-        })
 
-        
+        socket.on('keyup' , (msg) => {
+            io.emit('keyup:'+msg.to , {form : msg.from});
+        })
 
     })
     
