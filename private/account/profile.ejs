@@ -78,7 +78,7 @@
                         <% if(data[1].username) {%> 
                             <span class="send-message" onclick="window.location.href='/chat?u=<%= data[0].username %>'">send message</span>
                         <% }  else { %>
-                            <span class="send-message" onclick="window.location.href='/login?href=/<%= data[0].username %>'">send message</span>
+                            <span class="send-message" onclick="window.location.href='/chat?u=<%= data[0].username %>'">send message</span>
                         <% } %>
                 <% } %> 
             </div>
