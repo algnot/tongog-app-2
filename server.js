@@ -520,6 +520,10 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         }        
     }) 
 
+    app.get('/game' , (req , res) => {
+
+    })
+
     io.on('connection', (socket) => {
 
         socket.on('connect server', (msg) => {
@@ -554,6 +558,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                             } 
                         })
                     })
+                    sendNotify(to,'You have 1 message form '+msg.form+'\n['+msg.text+']\nYou can see it at https://tongog-app.herokuapp.com/chat#'+msg.form);
                 }         
             })
             io.emit('update:'+msg.ch2 , msg);   
