@@ -470,44 +470,98 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
     app.get('/chat' , (req,res) => {
         var cookies = new Cookies(req, res, { keys: keys });
+        var user = url.parse(req.url ,true).query.u;
 
-        db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
-        .then(result => {
-            var send = [];
-            send.push({username : result[0].username , privateCode : result[0].generateKey});
-            res.status(200);
-            res.render(__dirname + '/private/chat/chat.ejs' , {data:send});
-        })
+        if(!cookies.get('keyLogin')){
+            if(user)
+                res.redirect('/login?href=/chat?u='+user)
+            else 
+                res.redirect('/login?href=/chat')
+            return;
+        }
+        if(user){    
+            db.collection('profile-db').find({username : user}).toArray()
+            .then(result => {
+                var username = result[0].username;
+                var key = result[0].generateKey;
+                var time = Date.parse(new Date);
+                var room = Math.random() * 1000000000;
+                
+                if(result.length == 0){
+                    res.redirect('/chat')
+                } else {
+                    db.collection('chat-room-db').find({$and:[{ $or:[{user1:username} , {user2:username}] } , { $or:[{user1:cookies.get('username')} , {user2:cookies.get('username')}] }]}).toArray()
+                    .then(result => {
+                        if(result.length > 0){
+                            res.redirect('/chat#'+username);
+                            return;
+                        } else { 
+                            db.collection('chat-room-db').insertOne({user1:cookies.get('username') , user2:username , ch1:cookies.get('keyLogin') , ch2:key , room:room , lastMassage:(cookies.get('username')+' created room') ,lastTime:time , status:2})
+                            .then(result => {
+                                db.collection('chat-db').insertOne({room:room , form:cookies.get('username') , to:username , ch1:cookies.get('keyLogin') , ch2:key , text:(cookies.get('username')+' created room') ,time:time})
+                                .then(result => {
+                                    res.redirect('/chat#'+user);
+                                    return;
+                                })
+                            })
+                        }
+                    })
+                }
+            }) 
+        } else {
+            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+            .then(result => {
+                var send = [];
+                send.push({username : result[0].username , privateCode : result[0].generateKey});
+                res.status(200);
+                res.render(__dirname + '/private/chat/chat.ejs' , {data:send});
+            })
+        }        
     }) 
 
     io.on('connection', (socket) => {
+
         socket.on('connect server', (msg) => {
-          db.collection('chat-db').find({$or : [{ch1:msg},{ch2:msg}] }).sort({time:-1}).toArray()
+          db.collection('chat-room-db').find({ $or:[{ch1:msg} , {ch2:msg}] }).sort({lastTime:-1}).toArray()
           .then(result => {
-                console.log(result); 
-                socket.emit('chat'+msg , result);
+              socket.emit('load-header:'+msg , result);
           })
         })
- 
-        socket.on('loadChat' , (msg) => {
-            db.collection('chat-db').find( {$and : [ {$or : [{ch1:msg.user},{ch2:msg.user}]} , {$or:[{ch1:msg.load},{ch2:msg.load}]} ] } ).toArray()
+
+        socket.on('req-chat' , (msg) => {
+            db.collection('chat-db').find({ $and: [{ $or:[{ch1:msg.pri1} , {ch2:msg.pri1}] } , { $or:[{ch1:msg.pri2} , {ch2:msg.pri2}] }] }).toArray()
             .then(result => {
-                db.collection('chat-db').updateMany({ $and : [{ch1:msg.load , ch2:msg.user}]} , {$set:{status:1}} , (err,res) =>{})
-                socket.emit('load'+msg.user , result);
+                socket.emit('load-chat:'+msg.pri1 , result);
             })
         })
 
-        socket.on('send' , (msg) => {
-            console.log(msg)
-            db.collection('chat-db').insertOne({form:msg.form ,to:msg.to , ch1:msg.ch1 , ch2:msg.ch2 , time:Date.parse(new Date) , text:msg.text ,status:0})
-            .then(result => {
-                // socket.emit('load'+msg.ch1 , result);
+        socket.on('send' , (msg) =>{
+            db.collection('profile-db').find({generateKey:msg.ch2}).toArray()
+            .then (result => {
+                var to;
+                var time = Date.parse(new Date);
+                if(result.length > 0){
+                    to = result[0].username;
+                    db.collection('chat-db').insertOne({room:msg.room , form:msg.form , to:to , ch1:msg.ch1 , ch2:msg.ch2 , text:msg.text , time:time})
+                    .then(result =>{
+                        db.collection('chat-room-db').find({room:msg.room}).toArray()
+                        .then(result => {
+                            if(result[0].user1 == msg.form){
+                                db.collection('chat-room-db').updateOne({room:msg.room} , {$set:{lastMassage:msg.text , lastTime:time , status:1}} , (err ,res) => {})
+                            } else {
+                                db.collection('chat-room-db').updateOne({room:msg.room} , {$set:{lastMassage:msg.text , lastTime:time , status:2}} , (err ,res) => {})
+                            } 
+                        })
+                    })
+                }         
             })
+            io.emit('update:'+msg.ch2 , msg);   
         })
-
+   
         socket.on('disconnect', () => {
             console.log('user disconnected')
         })
+
     })
     
 
@@ -600,7 +654,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                         send.push({username : action , post : parseInt(post) , comment : parseInt(comment)});
                         send.push({username : cookies.get('username')});
 
-                        console.log(send);
+                        // console.log(send);
                         res.status(200);
                         res.render(__dirname + '/private/account/profile.ejs' , {data:send});
                     }) 

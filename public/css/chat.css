@@ -30,6 +30,10 @@
     cursor: pointer;
 }
 
+.grid:hover{
+    background-color: #3d3b3b;
+}
+
 .user-info{
     margin-top: -5px;
 }
