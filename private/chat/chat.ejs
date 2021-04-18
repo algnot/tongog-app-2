@@ -41,7 +41,10 @@
 
     <div class="container">
         <div class="inbox" id="inboxx">
-            <div class="inbox-head">Inbox</div>
+            <!-- <div class="inbox-head">Inbox</div> -->
+            <div class="find" onclick="openn()"><i class="fas fa-plus"></i> find your friends.</div>
+            <center id="ppp"><input id="findValue" type="text" onkeyup="find()" style="width: 90%; margin-top: 10px; padding: 5px; display: none;" placeholder="enter username.."></center>
+            <span id="query"></span>
             <span id="chat"></span>
         </div>
         
@@ -169,6 +172,22 @@
             }
         })
 
+        socket.on('query<%= data[0].privateCode %>', (msg) => {
+            document.getElementById('query').innerHTML = '';
+            for(var i=0 ; i<msg.length ; i++){
+                if(msg[i].username != '<%= data[0].username %>')
+                    document.getElementById('query').innerHTML += '<div class="grid" onclick="window.location.href=\'/chat?u='+msg[i].username+'\'"><div class="load-img2"><div class="control-img" style="background-image: url(\'/img/user/'+msg[i].username+'.jpg\');"><i class="fas fa-circle dot"></i></div></div><div class="user-info"><span class="user-name">'+msg[i].username+'</span></div></div>'
+            }
+        })
+
+        function find(){
+            var value = document.getElementById('findValue').value;
+            if(value)
+                socket.emit('find',{ch:'<%= data[0].privateCode %>',value:value});
+            else 
+                document.getElementById('query').innerHTML = ''
+        }
+
         function keyUp(){
             socket.emit('keyup',{from:'<%= data[0].privateCode %>' , to:pri});   
         }
@@ -194,6 +213,10 @@
         function go(){
             if(pri != 0)
                 window.location.href = '/'+document.getElementById('name-user').innerHTML;
+        }
+
+        function openn(){
+            document.getElementById('findValue').style.display='block'
         }
     </script>
 
