@@ -564,7 +564,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         })
 
         socket.on('find' , (msg) => {
-            console.log(msg)
+            // console.log(msg)
             db.collection('profile-db').find( { username: { $regex: msg.value , $options: "i" } }).toArray()
             .then(result => {
                 socket.emit('query'+msg.ch,result)
