@@ -479,7 +479,8 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 res.redirect('/login?href=/chat')
             return;
         }
-        if(user){    
+
+        if(user){ 
             db.collection('profile-db').find({username : user}).toArray()
             .then(result => {
                 var username = result[0].username;
@@ -496,7 +497,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                             res.redirect('/chat#'+username);
                             return;
                         } else { 
-                            db.collection('chat-room-db').insertOne({user1:cookies.get('username') , user2:username , ch1:cookies.get('keyLogin') , ch2:key , room:room , lastMassage:(cookies.get('username')+' created room') ,lastTime:time , status:2})
+                            db.collection('chat-room-db').insertOne({user1:cookies.get('username') , user2:username , ch1:cookies.get('keyLogin') , ch2:key , room:room , lastMassage:(cookies.get('username')+' created room') ,lastTime:time , status:1})
                             .then(result => {
                                 db.collection('chat-db').insertOne({room:room , form:cookies.get('username') , to:username , ch1:cookies.get('keyLogin') , ch2:key , text:(cookies.get('username')+' created room') ,time:time})
                                 .then(result => {
@@ -561,6 +562,8 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         socket.on('disconnect', () => {
             console.log('user disconnected')
         })
+
+        
 
     })
     
