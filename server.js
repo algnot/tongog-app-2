@@ -474,7 +474,7 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
         if(!cookies.get('keyLogin')){
             if(user)
-                res.redirect('/login?href=/chat')
+                res.redirect('/login?href=/chat#'+user)
             else 
                 res.redirect('/login?href=/chat')
             return;
