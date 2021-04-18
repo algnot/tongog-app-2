@@ -40,15 +40,16 @@
     </div>
 
     <div class="container">
-        <div class="inbox">
+        <div class="inbox" id="inboxx">
             <div class="inbox-head">Inbox</div>
             <span id="chat"></span>
         </div>
         
-        <div class="chat-content">
-            <div class="chat-header" onclick="go()">
-                <div class="load-img2" id="bg-user"><div class="control-img"  style="background-image: url('/img/chatbot.png');"></div></div>
-                <div class="header-name" id="name-user">bot chat</div>
+        <div class="chat-content" id="ham">
+            <div class="chat-header">
+                <i onclick="mobile()" class="fas fa-chevron-left ham"></i>
+                <div class="load-img2" onclick="go()" id="bg-user"><div class="control-img"  style="background-image: url('/img/chatbot.png');"></div></div>
+                <div class="header-name" onclick="go()" id="name-user">bot chat</div>
             </div>    
 
             <div class="chat-text" id="content">
@@ -159,6 +160,19 @@
         function loadChat(privateCode){
             pri = privateCode;
             socket.emit('req-chat',{pri1:'<%= data[0].privateCode %>' , pri2:privateCode});
+            if(screen.width < 760) {
+                document.getElementById('inboxx').style.display = 'none';
+                document.getElementById('ham').style.display ='block';
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+            }
+        }
+
+        function mobile(){
+            document.getElementById('ham').style.display = 'none';
+            document.getElementById('inboxx').style.display ='block'; 
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0; 
         }
         
         function go(){
