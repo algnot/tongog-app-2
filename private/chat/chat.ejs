@@ -46,6 +46,7 @@
             <center id="ppp"><input id="findValue" type="text" onkeyup="find()" style="width: 90%; margin-top: 10px; padding: 5px; display: none;" placeholder="enter username.."></center>
             <div id="query"></div>
             <div id="chat"></div>
+            <div id="aaaa"></div>
         </div>
         
         <div class="chat-content" id="ham">
@@ -154,7 +155,7 @@
             e.preventDefault();
             if (input.value && room != 0 && pri != 0) {
               socket.emit('send', {room:room , form:'<%= data[0].username %>' , ch1:'<%= data[0].privateCode %>' , ch2:pri , text:input.value });
-              document.getElementById('content').innerHTML += '<div id="aaaa" class="receiver">'+input.value+'</div>';
+              document.getElementById('content').innerHTML += '<div class="receiver">'+input.value+'</div>';
               document.getElementById('h'+pri).innerHTML = input.value;
               document.getElementById('h'+pri).style.color = 'rgb(116, 116, 116)';
               var elmnt = document.getElementById("aaaa");
