@@ -12,11 +12,134 @@
 }
 
 .content{
+    margin-top: 20px;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 30px;
 }
 
 .board{
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+}
+
+.grid{
+    text-align: center;
+    font-size: 50px;
+    height: 80px;
+}
+
+.grid:hover{
+    background-color: #383838;
+    cursor: pointer;
+}
+
+.grid-t{
+    border-top: 8px solid #202020;
+}
+
+.grid-r{
+    border-right: 8px solid #202020;
+}
+
+.grid .fa-circle{
+    color: #e49058;
+}
+
+.grid .fa-times{
+    color: #F4D03F;
+}
+
+.player-active{
+    color: #F4D03F;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #F4D03F;
+}
+
+.player{
+    margin-top: 20px;
+}
+
+.player-header{
+    font-weight: 800;
+    font-size: 23px;
+    color: #e49058;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.player-header div{
+    text-align: center;
+    cursor: pointer;
+}
+
+.player-header div:hover{
+    color: #F4D03F;
+}
+
+.player-grid{
+    color: #e49058;
+    margin-top: 10px;
+    background-color: #383838;
+    width: fit-content;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+}
+
+.option1{
+    background-color: #218f4f;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-left:30px;
+    cursor: pointer;
+}
+
+.option2{
+    background-color: #e49058;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-left:10px;
+    cursor: pointer;   
+}
+
+.option3{
+    background-color: #e94848;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-left:10px;
+    cursor: pointer;   
+}
+
+.option1:hover{
+    background-color: #166e3b;  
+}
+
+.option2:hover{
+    background-color: #d47f46;  
+}
+
+.option3:hover{
+    background-color: #e93c3c; 
+}
+
+.play{
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    place-items: center;
+}
+
+.show{
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.show:hover{
+    cursor: pointer;
+    color: #d47f46;  
 }

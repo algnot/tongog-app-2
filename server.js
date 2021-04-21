@@ -25,7 +25,7 @@ app.set('view engine','ejs');
 
 const MongoClient = require('mongodb').MongoClient;
 const e = require('express');
-const { send } = require('process');
+const { send, emit } = require('process');
 MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', { useUnifiedTopology: true })
 .then(client => {
 
@@ -535,6 +535,24 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
             res.render(__dirname + '/private/game/game.ejs' , {data:data});
         })
 
+        io.on('connection' , (socket) => {
+            socket.on('createRoom', (msg) => {
+                db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+                .then(result => {
+                    if(result.length == 0){
+                        var key = parseInt(Math.random()*100000);
+                        db.collection('game-db-server1').insertOne({header:'guest '+msg.server , key:key , player1 :'' , player2:'' , keyHeader:msg.server})
+                        socket.emit('create-status',{key : key , keyHeader:msg.server});
+                    } else {
+                        var key = parseInt(Math.random()*100000);
+                        var keyHeader = parseInt(Math.random()*100000);
+                        db.collection('game-db-server1').insertOne({header:result[0].username , key:key , player1 :'' , player2:'' , keyHeader:result[0].username})
+                        socket.emit('create-status',{key : key , keyHeader:keyHeader});
+                    } 
+                })
+            })
+        })
+
     })
 
     io.on('connection', (socket) => {
@@ -588,7 +606,6 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 socket.emit('query'+msg.ch,result)
             })
         })
-
     })
 
     //5xx
@@ -659,17 +676,103 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         } else if(action.search(/game/i) == 1) {
 
             var cookies = new Cookies(req, res, { keys: keys });
+            var id = parseInt(action.replace('/game/', ''));
 
             db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
             .then(result => {
                 var data = [];
                 if(result.length > 0){
                     data.push({username : result[0].username});
+                    cookies.set('keyGame',result[0].username);
                 } else {
-                    data.push({username : 'none' , id:parseInt(Math.random()*100000)});
-                }    
-                res.status(200); 
-                res.render(__dirname + '/private/game/TicTacToe.ejs' , {data:data});
+                    if(cookies.get('keyGame')){
+                        data.push({username : 'none' , id:cookies.get('keyGame')});   
+                    } else {
+                        var key = parseInt(Math.random()*100000);
+                        cookies.set('keyGame',key);
+                        data.push({username : 'none' , id:key});
+                    }  
+                }
+                db.collection('game-db-server1').find({key : id}).toArray()
+                .then( result => {
+                    if(result.length == 0){
+                        res.status(404);
+                        res.render(__dirname + '/public/404.ejs');
+                        return;
+                    }   
+                    data.push(result[0]);
+                    db.collection('game-db-server1-player').find({key:data[1].key , player:data[0].id}).toArray()
+                    .then(result => {
+                        if(result.length == 0){
+                            if(data[0].id)
+                                db.collection('game-db-server1-player').insertOne({key:data[1].key , player:data[0].id , log:0}) 
+                            else 
+                                db.collection('game-db-server1-player').insertOne({key:data[1].key , player:data[0].username ,log:1 }) 
+                        }
+                    })
+                    res.status(200); 
+                    res.render(__dirname + '/private/game/TicTacToe.ejs' , {data:data});
+                })      
+            })
+
+            io.on('connection' , (socket) => {
+
+                socket.on('commit-room' , (msg) => {
+                    db.collection('game-db-server1').find({key:parseInt(msg.keyRoom)}).toArray()
+                    .then(result => {
+                        var data = []
+                        data.push(result[0]);
+
+                        db.collection('game-db-server1-player').find({key:parseInt(msg.keyRoom)}).toArray()
+                        .then(result => {
+                            data.push(result);
+                            io.emit('send-data-room:'+msg.keyRoom ,data);
+                        })   
+                    })
+                })
+
+                socket.on('set-player' , (msg) => {
+                    db.collection('game-db-server1-player').find({$or:[{player:msg.player1,key:parseInt(msg.room)} , {player:msg.player2,key:parseInt(msg.room)}]}).toArray()
+                    .then( result => {
+                        db.collection('game-db-server1').updateOne({key:parseInt(msg.room)},{$set:{player1:msg.player1,player2:msg.player2}},(res,err) => {})
+                    })
+                    io.emit('update-player:'+msg.room,{player1:msg.player1,player2:msg.player2 , header:msg.header})
+                }) 
+
+                socket.on('start-game' , (msg) => {
+                    db.collection('game-db-server1').updateOne({key:parseInt(msg.room)},{$set: {status:1 , g1:0 , g2:0 , g3:0 , g4:0 , g5:0 , g6:0 , g7:0 , g8:0 , g9:0}})
+                    db.collection('game-db-server1').find({key:parseInt(msg.room)}).toArray()
+                    .then(result => {
+                        console.log(result);
+                    })
+                })
+
+                socket.on('disconnect', () => {
+                    db.collection('game-db-server1').find({key:id}).toArray()
+                    .then(result => {
+                        console.log(result[0])
+                        if(result.length > 0) {
+                            db.collection('game-db-server1-player').deleteOne({key:id , player:cookies.get('keyGame')} , (res,err) => {})
+
+                            if(result[0].keyHeader == cookies.get('keyGame')){
+                                db.collection('game-db-server1-player').find({key:id}).toArray()
+                                .then(result => {
+                                    if(result.length == 0){
+                                        db.collection('game-db-server1').deleteOne({key:id} , (res,err) => {})
+                                    } else {
+                                        if(result[0].log == 0){
+                                            db.collection('game-db-server1').updateOne({key:id},{$set:{keyHeader:result[0].player ,header:'guest '+result[0].player}})
+                                        } else {
+                                            db.collection('game-db-server1').updateOne({key:id},{$set:{keyHeader:result[0].player ,header:result[0].player}})
+                                        } 
+                                    }
+                                })
+                            }
+                        }
+                    })
+                    // io.emit('disconnect' , {room:id , user:cookies.get('keyGame')});
+                }); 
+                
             })
 
         } else {

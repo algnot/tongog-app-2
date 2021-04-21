@@ -62,7 +62,7 @@
                       <option value="1">Tic-Tac-Toe game (server I)</option>
                     </select>
                 </div>
-                <div class="btn-create">create</div>
+                <div class="btn-create" onclick="createServer()">create</div>
             </div>
         </div>
         
@@ -85,8 +85,24 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
-        
 
+        socket.on('create-status' , (msg) => {
+            if(msg.key){
+                setCookie('keyGame',msg.keyHeader,1)
+                window.location.href = '/game/'+msg.key;
+            }
+        })
+
+        var createServer = () =>{
+            socket.emit('createRoom', {user:'<%= data[0].username %>',server:'<%= data[0].id %>'});
+        }
+
+        function setCookie(cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays*24*60*60*1000));
+            var expires = "expires="+ d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }    
     </script>
 
     <script>
