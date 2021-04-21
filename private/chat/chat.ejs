@@ -155,7 +155,7 @@
             if (input.value && room != 0 && pri != 0) {
               var ran = Math.random()*1000;
               socket.emit('send', {room:room , form:'<%= data[0].username %>' , ch1:'<%= data[0].privateCode %>' , ch2:pri , text:input.value });
-              document.getElementById('content').innerHTML += '<div id="'+ran+'" class="receiver" style="margin-bottom:20px;">'+input.value+'</div>';
+              document.getElementById('content').innerHTML += '<div id="'+ran+'" class="receiver">'+input.value+'</div>';
               document.getElementById('h'+pri).innerHTML = input.value;
               document.getElementById('h'+pri).style.color = 'rgb(116, 116, 116)';
               var elmnt = document.getElementById(ran);
