@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="title">game | main</title>
+    <link href="/asset/fontawesome-free/css/all.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/css/navigation.css">
+    <link rel="stylesheet" href="/css/game.css">
+</head>
+<body>
+
+    <div class="navigation">
+        <div class="link" onclick="window.location.href='/'" ><i class="fas fa-meteor"></i> Feed</div>
+        <div class="link" onclick="window.location.href='/chat'"><i class="fas fa-people-arrows"></i> Message</div>
+        <div class="link active"><i class="fas fa-satellite"></i>Game</div> 
+        <% if(data[0].username!='none') { %> 
+            <div class="profile" onclick="document.getElementById('control').style.display='block'">
+                <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div></div>
+                <div class="profile-name"><%= data[0].username %></div>
+            </div>
+        <% } else { %> 
+            <div class="profile" onclick="window.location.href='/login?href=/game'">
+                <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/none.jpg');"></div></div>
+                <div class="profile-name">guest<%= data[0].id %></div>
+            </div>
+        <% } %> 
+    </div>
+
+    <div id="control" style="display: none;">
+        <div class="user" >
+            <div class="control">
+                <div class="go-profile" onclick="window.location.href='/<%= data[0].username %>'">
+                    <div class="load-img"><div class="control-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div></div>
+                    <div style="padding-left: 20px;">
+                        <%= data[0].username %> <br>
+                        go to profile
+                    </div>
+                </div>
+                <div class="control-link" onclick="document.getElementById('control').style.display='none'"><i class="fas fa-meteor"></i> Back to feed</div>
+                <!-- <div class="control-link"><i class="fas fa-code"></i> tongog API</div> -->
+                <!-- <div class="control-link"><i class="fas fa-sliders-h"></i> Setting</div> -->
+                <div class="control-link" onclick="window.location.href='/logout'"><i class="fas fa-sign-out-alt"></i> Log out</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-text"><i class="fas fa-gamepad"></i>Game </div>
+            <div class="header-option">
+                <div class="option-creat" onclick="create()"><i class="fas fa-plus"></i>Create a room</div>
+                <div class="option-find"><input type="text" placeholder="enter room id"></div>
+            </div>
+        </div>
+        <div class="form-create" id="create">
+            <div class="form-text"><i class="fas fa-bolt"></i>Select option your room </div>
+            <div class="form">
+                <div class="custom-select">
+                    <select>
+                      <option value="1">Tic-Tac-Toe game (server I)</option>
+                    </select>
+                </div>
+                <div class="btn-create">create</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="server"><i class="fas fa-circle"></i>Server I (Tic-Tac-Toe Game)</div>
+            <div class="room">
+
+                <div class="grid-room">
+                    <div class="room-name">algnot's room</div>
+                    <div class="room-guest">(1/10)</div>
+                    <div class="room-status"><i class="fas fa-circle"></i>online</div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        
+
+    </script>
+
+    <script>
+        var x, i, j, l, ll, selElmnt, a, b, c;
+        x = document.getElementsByClassName("custom-select");
+        l = x.length;
+        for (i = 0; i < l; i++) {
+          selElmnt = x[i].getElementsByTagName("select")[0];
+          ll = selElmnt.length;
+          a = document.createElement("DIV");
+          a.setAttribute("class", "select-selected");
+          a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+          x[i].appendChild(a);
+          b = document.createElement("DIV");
+          b.setAttribute("class", "select-items select-hide");
+          for (j = 1; j < ll; j++) {
+            c = document.createElement("DIV");
+            c.innerHTML = selElmnt.options[j].innerHTML;
+            c.addEventListener("click", function(e) {
+                var y, i, k, s, h, sl, yl;
+                s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+                sl = s.length;
+                h = this.parentNode.previousSibling;
+                for (i = 0; i < sl; i++) {
+                  if (s.options[i].innerHTML == this.innerHTML) {
+                    s.selectedIndex = i;
+                    h.innerHTML = this.innerHTML;
+                    y = this.parentNode.getElementsByClassName("same-as-selected");
+                    yl = y.length;
+                    for (k = 0; k < yl; k++) {
+                      y[k].removeAttribute("class");
+                    }
+                    this.setAttribute("class", "same-as-selected");
+                    break;
+                  }
+                }
+                h.click();
+            });
+            b.appendChild(c);
+          }
+          x[i].appendChild(b);
+          a.addEventListener("click", function(e) {
+              e.stopPropagation();
+              closeAllSelect(this);
+              this.nextSibling.classList.toggle("select-hide");
+              this.classList.toggle("select-arrow-active");
+            });
+        }
+        function closeAllSelect(elmnt) {
+          var x, y, i, xl, yl, arrNo = [];
+          x = document.getElementsByClassName("select-items");
+          y = document.getElementsByClassName("select-selected");
+          xl = x.length;
+          yl = y.length;
+          for (i = 0; i < yl; i++) {
+            if (elmnt == y[i]) {
+              arrNo.push(i)
+            } else {
+              y[i].classList.remove("select-arrow-active");
+            }
+          }
+          for (i = 0; i < xl; i++) {
+            if (arrNo.indexOf(i)) {
+              x[i].classList.add("select-hide");
+            }
+          }
+        }
+        document.addEventListener("click", closeAllSelect);
+
+        var createShow = 1;
+        create();
+        function create(){
+            if(createShow){
+                document.getElementById('create').style.display = 'none'
+                createShow = 0
+            } else {
+                document.getElementById('create').style.display = 'block'
+                createShow = 1
+            }
+        }
+    </script>
+</body>
+</html>

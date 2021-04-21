@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="title">game | main</title>
+    <link href="/asset/fontawesome-free/css/all.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/css/navigation.css">
+    <link rel="stylesheet" href="/css/ticactoe.css">
+</head>
+<body>
+
+    <div class="navigation">
+        <div class="link" onclick="window.location.href='/'" ><i class="fas fa-meteor"></i> Feed</div>
+        <div class="link" onclick="window.location.href='/chat'"><i class="fas fa-people-arrows"></i> Message</div>
+        <div class="link active"><i class="fas fa-satellite"></i>Game</div> 
+        <% if(data[0].username!='none') { %> 
+            <div class="profile" onclick="document.getElementById('control').style.display='block'">
+                <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div></div>
+                <div class="profile-name"><%= data[0].username %></div>
+            </div>
+        <% } else { %> 
+            <div class="profile" onclick="window.location.href='/login?href=/game'">
+                <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/none.jpg');"></div></div>
+                <div class="profile-name">guest<%= data[0].id %></div>
+            </div>
+        <% } %> 
+    </div>
+
+    <div id="control" style="display: none;">
+        <div class="user" >
+            <div class="control">
+                <div class="go-profile" onclick="window.location.href='/<%= data[0].username %>'">
+                    <div class="load-img"><div class="control-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div></div>
+                    <div style="padding-left: 20px;">
+                        <%= data[0].username %> <br>
+                        go to profile
+                    </div>
+                </div>
+                <div class="control-link" onclick="document.getElementById('control').style.display='none'"><i class="fas fa-meteor"></i> Back to feed</div>
+                <!-- <div class="control-link"><i class="fas fa-code"></i> tongog API</div> -->
+                <!-- <div class="control-link"><i class="fas fa-sliders-h"></i> Setting</div> -->
+                <div class="control-link" onclick="window.location.href='/logout'"><i class="fas fa-sign-out-alt"></i> Log out</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header"><i class="fab fa-buromobelexperte"></i> algnot's room</div>
+        <div class="content">
+            <div class="board">
+                <div class="grid1"><i class="fas fa-times"></i></div>
+                <div class="grid2"><i class="fas fa-times"></i></div>
+                <div class="grid3"><i class="fas fa-times"></i></div>
+                <div class="grid4"><i class="far fa-circle"></i></div>
+                <div class="grid5"><i class="fas fa-times"></i></div>
+                <div class="grid6"><i class="far fa-circle"></i></div>
+                <div class="grid7"><i class="far fa-circle"></i></div>
+                <div class="grid8"><i class="far fa-circle"></i></div>
+                <div class="grid9"><i class="far fa-circle"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        
+
+    </script>
+
+</body>
+</html>

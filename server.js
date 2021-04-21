@@ -521,6 +521,19 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
     }) 
 
     app.get('/game' , (req , res) => {
+        var cookies = new Cookies(req, res, { keys: keys });
+
+        db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+        .then(result => {
+            var data = [];
+            if(result.length > 0){
+                data.push({username : result[0].username});
+            } else {
+                data.push({username : 'none' , id:parseInt(Math.random()*100000)});
+            }    
+            res.status(200); 
+            res.render(__dirname + '/private/game/game.ejs' , {data:data});
+        })
 
     })
 
@@ -577,7 +590,6 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         })
 
     })
-    
 
     //5xx
     app.use(function(err, req, res, next){
@@ -643,6 +655,22 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     return;   
                 }) 
             }) 
+
+        } else if(action.search(/game/i) == 1) {
+
+            var cookies = new Cookies(req, res, { keys: keys });
+
+            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+            .then(result => {
+                var data = [];
+                if(result.length > 0){
+                    data.push({username : result[0].username});
+                } else {
+                    data.push({username : 'none' , id:parseInt(Math.random()*100000)});
+                }    
+                res.status(200); 
+                res.render(__dirname + '/private/game/TicTacToe.ejs' , {data:data});
+            })
 
         } else {
             action = action.replace('/','');

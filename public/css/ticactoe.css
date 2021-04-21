@@ -1,0 +1,22 @@
+.container{
+    margin: 50px 200px;
+    background-color: #272727;
+    border-radius: 30px;
+    padding: 30px 40px;
+}
+
+.header{
+    font-weight: 800;
+    font-size: 23px;
+    color: #e49058;
+}
+
+.content{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.board{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
