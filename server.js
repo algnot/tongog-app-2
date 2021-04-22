@@ -72,6 +72,8 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                     var cookies = new Cookies(req, res, { keys: keys });
                     cookies.set('keyLogin', result[0].generateKey , {maxAge: 3600000*3*10});
                     cookies.set('username', result[0].username , {maxAge: 3600000*3*10});
+                    cookies.set('game-user', result[0].username ,{maxAge:3600000*3*10});
+                    cookies.set('game-key', result[0].generateKey ,{maxAge:3600000*3*10});
                     if(href){
                          res.redirect(href);
                     } else {
@@ -90,6 +92,8 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
         var cookies = new Cookies(req, res, { keys: keys });
         cookies.set('keyLogin','',{maxAge:0});
         cookies.set('username','',{maxAge:0});
+        cookies.set('game-user','',{maxAge:0});
+        cookies.set('game-key','',{maxAge:0});
         res.redirect('/');
     })
 
@@ -522,37 +526,28 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
     app.get('/game' , (req , res) => {
         var cookies = new Cookies(req, res, { keys: keys });
+        var send = [];
+        var rand = parseInt(Math.random()*1000000);
+
+        if(!cookies.get('keyLogin')){
+            send.push({username:'guest'+rand , key:rand , status:0});
+            res.status(200);
+            res.render(__dirname + '/private/game/game.ejs',{data:send});
+            return;
+        } 
 
         db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
         .then(result => {
-            var data = [];
-            if(result.length > 0){
-                data.push({username : result[0].username});
+            if(result.length == 1){
+                send.push({username:result[0].username , key:cookies.get('keyLogin') , status:1}); 
             } else {
-                data.push({username : 'none' , id:parseInt(Math.random()*100000)});
-            }    
-            res.status(200); 
-            res.render(__dirname + '/private/game/game.ejs' , {data:data});
+                send.push({username:'guest'+rand , key:rand , status:0});
+                cookies.set('keyLogin','',{maxAge:0});
+                cookies.set('username','',{maxAge:0});
+            }   
+            res.status(200);
+            res.render(__dirname + '/private/game/game.ejs',{data:send}); 
         })
-
-        io.on('connection' , (socket) => {
-            socket.on('createRoom', (msg) => {
-                db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
-                .then(result => {
-                    if(result.length == 0){
-                        var key = parseInt(Math.random()*100000);
-                        db.collection('game-db-server1').insertOne({header:'guest '+msg.server , key:key , player1 :'' , player2:'' , keyHeader:msg.server})
-                        socket.emit('create-status',{key : key , keyHeader:msg.server});
-                    } else {
-                        var key = parseInt(Math.random()*100000);
-                        var keyHeader = parseInt(Math.random()*100000);
-                        db.collection('game-db-server1').insertOne({header:result[0].username , key:key , player1 :'' , player2:'' , keyHeader:result[0].username})
-                        socket.emit('create-status',{key : key , keyHeader:keyHeader});
-                    } 
-                })
-            })
-        })
-
     })
 
     io.on('connection', (socket) => {
@@ -606,6 +601,120 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
                 socket.emit('query'+msg.ch,result)
             })
         })
+
+        socket.on('create-game' , (msg) => {
+            var room = parseInt(Math.random()*100000)
+            db.collection('game-db-server1').insertOne({room:room , header:msg.user , key:msg.key , player1:'' , player2:'' , item:''} , (res,err) => {})
+            socket.emit('confirm-create' , {room:room , header:msg.user , key:msg.key , player1:'' , player2:''});
+        })
+
+        socket.on('load-room' , (msg) => {
+            var send = [];
+            db.collection('game-db-server1').find({room:parseInt(msg.room)}).toArray()
+            .then(result => {
+                if(result.length == 0){
+                    io.emit('res:'+msg.room , {err:500});
+                    return;
+                }
+                send.push(result[0]);
+                db.collection('game-db-server1-player').find({room:msg.room}).toArray()
+                .then(result => {
+                    send.push(result);
+                    io.emit('res:'+msg.room , send);
+                })
+            })
+        })
+
+        socket.on('set-player' , (msg) => {
+            db.collection('game-db-server1').updateOne({room:parseInt(msg.room)} , {$set:{player1:msg.player1 , player2:msg.player2}} , (res,err) => {
+                io.emit('confirm-set:'+msg.room , {player1:msg.player1 , player2:msg.player2});
+            })        
+        }) 
+
+        socket.on('start-game' , (msg) => {
+            db.collection('game-db-server1').find({room:parseInt(msg.room)}).toArray()
+            .then(result => {
+                if(result.length == 0){
+                    io.emit('res:'+msg.room , {err:500});
+                    return;
+                }
+                db.collection('game-db-server1').updateOne({room:parseInt(msg.room)} , {$set: {turn:Math.floor((Math.random() * 2) + 1) , item:'' ,winner:0}} , (res,err) => {})
+                io.emit('start-game:'+msg.room , {player1:result[0].player1 , player2:result[0].player2})
+
+                var send = [];
+                db.collection('game-db-server1').find({room:parseInt(msg.room)}).toArray()
+                .then(result => {
+                    if(result.length == 0){
+                        io.emit('res:'+msg.room , {err:500});
+                        return;
+                    }
+                    send.push(result[0]);
+                    db.collection('game-db-server1-player').find({room:msg.room}).toArray()
+                    .then(result => {
+                        send.push(result);
+                        io.emit('res:'+msg.room , send);
+                    })
+                })
+            })
+        })
+
+        socket.on('send-data' , (msg) => {
+            db.collection('game-db-server1').find({room:parseInt(msg.room)}).toArray()
+            .then(result => {
+                var item = result[0].item;
+                var box = [-1,-1,-1,-1,-1,-1,-1,-1,-1]; 
+
+                for(var i=0 ; i<item.length ; i++){
+                    if(i%2 == 0){
+                        box[(item[i]-1)] = 0
+                    } else {
+                        box[(item[i]-1)] = 1
+                    }
+                    if(msg.id == item[i]){
+                        return;
+                    }
+                }
+                box[(msg.id-1)] = result[0].turn%2==0 ? 0 : 1;
+
+                if(((box[0]==box[1] && box[1]==box[2]) || (box[0]==box[3] && box[3]==box[6]) || (box[0]==box[4] && box[4]==box[8])) && box[0]!=-1){
+                    var winner = box[0]==0 ? 1 : 2 ;
+                    db.collection('game-db-server1').updateOne({room:parseInt(msg.room)} , {$set:{winner:winner}} , (res,err) => {})
+                } else if(((box[3]==box[4] && box[4]==box[5]) || (box[1]==box[4] && box[4]==box[7]) || (box[2]==box[4] && box[4]==box[6])) && box[4]!=-1){
+                    var winner = box[4]==0 ? 1 : 2 ;
+                    db.collection('game-db-server1').updateOne({room:parseInt(msg.room)} , {$set:{winner:winner}} , (res,err) => {})
+                } else if(((box[6]==box[7] && box[7]==box[8]) || (box[2]==box[5] && box[5]==box[8])) && box[8]!=-1){
+                    var winner = box[8]==0 ? 1 : 2 ;
+                    db.collection('game-db-server1').updateOne({room:parseInt(msg.room)} , {$set:{winner:winner}} , (res,err) => {})
+                }
+
+                if(msg.user == result[0].player1 && result[0].turn == 1){
+                    var item = result[0].item+''+msg.id;
+                    db.collection('game-db-server1').updateOne({room:parseInt(msg.room)} , { $set:{turn:2 , item:item } } , (res,err) => {})
+                }
+
+                if(msg.user == result[0].player2 && result[0].turn == 2){
+                    var item = result[0].item+''+msg.id;
+                    db.collection('game-db-server1').updateOne({room:parseInt(msg.room)} , { $set:{turn:1 , item:item } } , (res,err) => {})
+                }
+
+                var send = [];
+                db.collection('game-db-server1').find({room:parseInt(msg.room)}).toArray()
+                .then(result => {
+                    if(result.length == 0){
+                        io.emit('res:'+msg.room , {err:500});
+                        return;
+                    }
+                    send.push(result[0]);
+                    db.collection('game-db-server1-player').find({room:msg.room}).toArray()
+                    .then(result => {
+                        send.push(result);
+                        io.emit('res:'+msg.room , send);
+                    })
+                })
+
+            })
+        })
+
     })
 
     //5xx
@@ -675,104 +784,45 @@ MongoClient.connect('mongodb+srv://tongog-app-db:tongogapp12345@cluster0.sucnq.m
 
         } else if(action.search(/game/i) == 1) {
 
-            var cookies = new Cookies(req, res, { keys: keys });
-            var id = parseInt(action.replace('/game/', ''));
+            var rand = parseInt(Math.random()*1000000);
+            var room = action.replace('/game/','');
+            var send = [];
 
-            db.collection('profile-db').find({generateKey:cookies.get('keyLogin')}).toArray()
+            db.collection('game-db-server1').find({room:parseInt(room)}).toArray()
             .then(result => {
-                var data = [];
-                if(result.length > 0){
-                    data.push({username : result[0].username});
-                    cookies.set('keyGame',result[0].username);
-                } else {
-                    if(cookies.get('keyGame')){
-                        data.push({username : 'none' , id:cookies.get('keyGame')});   
-                    } else {
-                        var key = parseInt(Math.random()*100000);
-                        cookies.set('keyGame',key);
-                        data.push({username : 'none' , id:key});
-                    }  
+                if(result.length == 0){
+                    res.status(404);
+                    res.render(__dirname+'/public/404.ejs')
+                    return;
                 }
-                db.collection('game-db-server1').find({key : id}).toArray()
-                .then( result => {
+
+                if(cookies.get('game-key') && cookies.get('game-user')){
+                    send.push({username:cookies.get('game-user') , key:cookies.get('game-key') , status:0})
+                    cookies.set('game-user',cookies.get('game-user'),{maxAge:3600000*3*24});
+                    cookies.set('game-key',cookies.get('game-key'),{maxAge:3600000*3*24});
+                } else {
+                    cookies.set('game-user','guest'+rand,{maxAge:3600000*3*24});
+                    cookies.set('game-key',rand,{maxAge:3600000*3*24});
+                    send.push({username:'guest'+rand , key:rand , status:0})
+                }
+
+                if(cookies.get('keyLogin') && cookies.get('username')){
+                    send.pop();
+                    cookies.set('game-user',cookies.get('username'),{maxAge:3600000*3*24});
+                    cookies.set('game-key',cookies.get('keyLogin'),{maxAge:3600000*3*24});
+                    send.push({username:cookies.get('username') , key:cookies.get('keyLogin') , status:1})
+                } 
+
+                db.collection('game-db-server1-player').find({ room:room , user:send[0].username}).toArray()
+                .then(result => {
                     if(result.length == 0){
-                        res.status(404);
-                        res.render(__dirname + '/public/404.ejs');
-                        return;
-                    }   
-                    data.push(result[0]);
-                    db.collection('game-db-server1-player').find({key:data[1].key , player:data[0].id}).toArray()
-                    .then(result => {
-                        if(result.length == 0){
-                            if(data[0].id)
-                                db.collection('game-db-server1-player').insertOne({key:data[1].key , player:data[0].id , log:0}) 
-                            else 
-                                db.collection('game-db-server1-player').insertOne({key:data[1].key , player:data[0].username ,log:1 }) 
-                        }
-                    })
-                    res.status(200); 
-                    res.render(__dirname + '/private/game/TicTacToe.ejs' , {data:data});
-                })      
-            })
-
-            io.on('connection' , (socket) => {
-
-                socket.on('commit-room' , (msg) => {
-                    db.collection('game-db-server1').find({key:parseInt(msg.keyRoom)}).toArray()
-                    .then(result => {
-                        var data = []
-                        data.push(result[0]);
-
-                        db.collection('game-db-server1-player').find({key:parseInt(msg.keyRoom)}).toArray()
-                        .then(result => {
-                            data.push(result);
-                            io.emit('send-data-room:'+msg.keyRoom ,data);
-                        })   
-                    })
-                })
-
-                socket.on('set-player' , (msg) => {
-                    db.collection('game-db-server1-player').find({$or:[{player:msg.player1,key:parseInt(msg.room)} , {player:msg.player2,key:parseInt(msg.room)}]}).toArray()
-                    .then( result => {
-                        db.collection('game-db-server1').updateOne({key:parseInt(msg.room)},{$set:{player1:msg.player1,player2:msg.player2}},(res,err) => {})
-                    })
-                    io.emit('update-player:'+msg.room,{player1:msg.player1,player2:msg.player2 , header:msg.header})
+                        db.collection('game-db-server1-player').insertOne({ room:room , user:send[0].username, key:send[0].key } , (res,err) => {})
+                    } 
                 }) 
 
-                socket.on('start-game' , (msg) => {
-                    db.collection('game-db-server1').updateOne({key:parseInt(msg.room)},{$set: {status:1 , g1:0 , g2:0 , g3:0 , g4:0 , g5:0 , g6:0 , g7:0 , g8:0 , g9:0}})
-                    db.collection('game-db-server1').find({key:parseInt(msg.room)}).toArray()
-                    .then(result => {
-                        console.log(result);
-                    })
-                })
-
-                socket.on('disconnect', () => {
-                    db.collection('game-db-server1').find({key:id}).toArray()
-                    .then(result => {
-                        console.log(result[0])
-                        if(result.length > 0) {
-                            db.collection('game-db-server1-player').deleteOne({key:id , player:cookies.get('keyGame')} , (res,err) => {})
-
-                            if(result[0].keyHeader == cookies.get('keyGame')){
-                                db.collection('game-db-server1-player').find({key:id}).toArray()
-                                .then(result => {
-                                    if(result.length == 0){
-                                        db.collection('game-db-server1').deleteOne({key:id} , (res,err) => {})
-                                    } else {
-                                        if(result[0].log == 0){
-                                            db.collection('game-db-server1').updateOne({key:id},{$set:{keyHeader:result[0].player ,header:'guest '+result[0].player}})
-                                        } else {
-                                            db.collection('game-db-server1').updateOne({key:id},{$set:{keyHeader:result[0].player ,header:result[0].player}})
-                                        } 
-                                    }
-                                })
-                            }
-                        }
-                    })
-                    // io.emit('disconnect' , {room:id , user:cookies.get('keyGame')});
-                }); 
-                
+                send.push(result[0]);
+                res.status(200);
+                res.render(__dirname+'/private/game/TicTacToe.ejs' , {data:send})
             })
 
         } else {

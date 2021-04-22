@@ -15,7 +15,7 @@
         <div class="link" onclick="window.location.href='/'" ><i class="fas fa-meteor"></i> Feed</div>
         <div class="link" onclick="window.location.href='/chat'"><i class="fas fa-people-arrows"></i> Message</div>
         <div class="link active"><i class="fas fa-satellite"></i>Game</div> 
-        <% if(data[0].username!='none') { %> 
+        <% if(data[0].status) { %> 
             <div class="profile" onclick="document.getElementById('control').style.display='block'">
                 <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div></div>
                 <div class="profile-name"><%= data[0].username %></div>
@@ -23,7 +23,7 @@
         <% } else { %> 
             <div class="profile" onclick="window.location.href='/login?href=/game'">
                 <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/none.jpg');"></div></div>
-                <div class="profile-name">guest<%= data[0].id %></div>
+                <div class="profile-name"><%= data[0].username %></div>
             </div>
         <% } %> 
     </div>
@@ -51,18 +51,18 @@
             <div class="section1">
                 <div class="header"><i class="fab fa-buromobelexperte"></i> <%= data[1].header %> 's room</div>
                 <div class="board">
-                    <div class="grid grid-r"><i class="far fa-circle"></i></div>
-                    <div class="grid grid-r"><i class="fas fa-times"></i></div>
-                    <div class="grid "><i class="fas fa-times"></i></div>
-                    <div class="grid grid-r grid-t"><i class="far fa-circle"></i></div>
-                    <div class="grid grid-r grid-t"><i class="fas fa-times"></i></div>
-                    <div class="grid grid-t"><i class="far fa-circle"></i></div>
-                    <div class="grid grid-r grid-t"><i class="far fa-circle"></i></div>
-                    <div class="grid grid-r grid-t"><i class="far fa-circle"></i></div>
-                    <div class="grid grid-t"><i class="far fa-circle"></i></div>
+                    <div onclick="send('1')" id="g1" class="grid grid-r"></div>
+                    <div onclick="send('2')" id="g2" class="grid grid-r"></div>
+                    <div onclick="send('3')" id="g3" class="grid "></div>
+                    <div onclick="send('4')" id="g4" class="grid grid-r grid-t"></div>
+                    <div onclick="send('5')" id="g5" class="grid grid-r grid-t"></div>
+                    <div onclick="send('6')" id="g6" class="grid grid-t"></div>
+                    <div onclick="send('7')" id="g7" class="grid grid-r grid-t"></div>
+                    <div onclick="send('8')" id="g8" class="grid grid-r grid-t"></div>
+                    <div onclick="send('9')" id="g9" class="grid grid-t"></div>
                 </div>
                 <div class="player">
-                    <div class="player-header" style="display: block;"><i class="fas fa-user-friends"></i>Players</div>
+                    <div class="player-header" style="display: block;"><i class="fas fa-user-friends"></i>Players <span id="text" style="color: #F4D03F;"></span></div>
                     <div class="play">
                         <div class="player-grid" id="player1">
                             <div class="player-name" style="color:#202020"><i class="fas fa-plus-circle"></i></i>waiting player</div>
@@ -85,194 +85,254 @@
                     <div class="player-active"><i class="fas fa-user"></i> Visitor</i></div>
                     <div class=""><i class="fas fa-comment-alt"></i> Chat</i></div>
                 </div>
-
                 <div id="visitors"></div>
-
             </div>
+
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        var socket = io();
-        var user = '<%= data[0].id %>'
+    <% if(data[0].username == data[1].header) { %> 
+        <script>
+            var pla1 = '<i class="far fa-circle"></i>';
+            var pla2 = '<i class="fas fa-times"></i>';
+            var socket = io();
+            loadRoom();
 
-        socket.emit('commit-room',{keyRoom:'<%= data[1].key %>' , keyUser:'<%= data[0].id %>'});
-        
-        socket.on('send-data-room:<%= data[1].key %>' , (msg) => {
-            var info = msg[1]; 
-            if(msg[0].keyHeader == user){
-                document.getElementById('visitors').innerHTML = '';
-                info.map((value , index) => {
-                    if(!value.log){
-                        if(value.player == msg[0].keyHeader)
-                        document.getElementById('visitors').innerHTML += '<div class="player-grid">'
-                                                                + '<div class="player-name"><i class="fas fa-crown"></i>guest'+value.player+'</div>'
-                                                                + '<div class="option1" onclick="setPlayer1(\''+value.player+'\')">Set player 1</div>'
-                                                                + '<div class="option2" onclick="setPlayer2(\''+value.player+'\')">Set player 2</div>'
-                                                                + '</div>'
-                        else 
-                        document.getElementById('visitors').innerHTML += '<div class="player-grid">'
-                                                                + '<div class="player-name">guest'+value.player+'</div>'
-                                                                + '<div class="option1" onclick="setPlayer1(\''+value.player+'\')">Set player 1</div>'
-                                                                + '<div class="option2" onclick="setPlayer2(\''+value.player+'\')">Set player 2</div>'
-                                                                + '</div>'
-                        if(msg[0].player1 == value.player){
-                            document.getElementById('player1').innerHTML = '';
-                            document.getElementById('player1').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>guest'+msg[0].player1+'</div><div class="option3" onclick="drop(1)">Drop</div>';
-                        }
-                        if(msg[0].player2 == value.player){
-                            document.getElementById('player2').innerHTML = '';
-                            document.getElementById('player2').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>guest'+msg[0].player2+'</div><div class="option3" onclick="drop(2)">Drop</div>';
+            socket.on('res:<%= data[1].room %>' , (msg) => {
+                if(msg.err == 500){
+                    alert('This room is now closed.');
+                    return;
+                }
+                query(msg);
+            })
+
+            socket.on('confirm-set:<%= data[1].room %>' , (msg) => {
+                loadRoom();
+            })
+
+            socket.on('start-game:<%= data[1].room %>', (msg) => {
+                document.getElementById('start-btn').style.display = 'none'
+            })
+
+            function loadRoom(){
+                socket.emit('load-room' , {room :'<%= data[1].room %>'});
+            }
+
+            function query(msg){
+                console.log(msg);
+                var info = msg[0];
+                var elmP1 = document.getElementById('player1');
+                var elmP2 = document.getElementById('player2');
+                if(info.player1 == ""){
+                    elmP1.innerHTML = '<div class="player-name" style="color:#202020"><i class="fas fa-plus-circle"></i></i>waiting player</div>';
+                } else {
+                    elmP1.innerHTML = '<div class="player-name"><i class="fas fa-user"></i>'+info.player1.substring(0, 9)+'</div><div class="option3" onclick="setPlayer1(\'\')">Drop</div>';
+                }
+                if(info.player2 == ""){
+                    elmP2.innerHTML = '<div class="player-name" style="color:#202020"><i class="fas fa-plus-circle"></i></i>waiting player</div>';
+                } else {
+                    elmP2.innerHTML = '<div class="player-name"><i class="fas fa-user"></i>'+info.player2.substring(0, 9)+'</div><div class="option3" onclick="setPlayer2(\'\')">Drop</div>';
+                }
+
+                var user = msg[1];
+                var elmVi = document.getElementById('visitors');
+                elmVi.innerHTML = '';
+
+                user.map( (item) => {
+                    if(!info.turn) {
+                        if(item.user == '<%= data[1].header %>'){
+                            elmVi.innerHTML += '<div class="player-grid">'
+                                        + '<div class="player-name"><i class="fas fa-crown"></i>'+item.user.substring(0, 9)+'</div>'
+                                        + '<div class="option1" onclick="setPlayer1(\''+item.user+'\')">Set player 1</div>'
+                                        + '<div class="option2" onclick="setPlayer2(\''+item.user+'\')">Set player 2</div>' 
+                                        + '</div>'
+                        } else {
+                            elmVi.innerHTML += '<div class="player-grid">'
+                                        + '<div class="player-name">'+item.user.substring(0, 9)+'</div>'
+                                        + '<div class="option1" onclick="setPlayer1(\''+item.user+'\')">Set player 1</div>'
+                                        + '<div class="option2" onclick="setPlayer2(\''+item.user+'\')">Set player 2</div>'
+                                        + '</div>'
                         }
                     } else {
-                        if(value.player == msg[0].keyHeader)
-                        document.getElementById('visitors').innerHTML += '<div class="player-grid">'
-                                                                + '<div class="player-name"><i class="fas fa-crown"></i>'+value.player+'</div>'
-                                                                + '<div class="option1" onclick="setPlayer1(\''+value.player+'\')">Set player 1</div>'
-                                                                + '<div class="option2" onclick="setPlayer2(\''+value.player+'\')">Set player 2</div>'
-                                                                + '</div>'
-                        else 
-                        document.getElementById('visitors').innerHTML += '<div class="player-grid">'
-                                                                + '<div class="player-name">'+value.player+'</div>'
-                                                                + '<div class="option1" onclick="setPlayer1(\''+value.player+'\')">Set player 1</div>'
-                                                                + '<div class="option2" onclick="setPlayer2(\''+value.player+'\')">Set player 2</div>'
-                                                                + '</div>'
-                        if(msg[0].player1 == value.player){
-                            document.getElementById('player1').innerHTML = '';
-                            document.getElementById('player1').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>guest'+msg[0].player1+'</div><div class="option3" onclick="drop(1)">Drop</div>';
-                        }
-                        if(msg[0].player2 == value.player){
-                            document.getElementById('player2').innerHTML = '';
-                            document.getElementById('player2').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>guest'+msg[0].player2+'</div><div class="option3" onclick="drop(2)">Drop</div>';
+                        if(item.user == '<%= data[1].header %>'){
+                            elmVi.innerHTML += '<div class="player-grid" style="float:left; margin-right:5px;">'
+                                        + '<div class="player-name"><i class="fas fa-crown"></i>'+item.user.substring(0, 9)+'</div>'
+                                        + '</div>'
+                        } else {
+                            elmVi.innerHTML += '<div class="player-grid" style="float:left; margin-right:5px;">'
+                                        + '<div class="player-name">'+item.user.substring(0, 9)+'</div>'
+                                        + '</div>'
                         }
                     }
                 })
-                if(msg[0].player1 != 0 && msg[0].player2 != 0)
+
+                if(player1!="" && player2!=""){
                     document.getElementById('start-btn').style.display = 'block';
-                else
+                } else {
                     document.getElementById('start-btn').style.display = 'none';
-            } else {
-                document.getElementById('visitors').innerHTML = '';
-                document.getElementById('visitors').style.display = 'flex';
-                info.map((value , index) => {
-                    if(!value.log){
-                        if(value.player == msg[0].keyHeader)
-                        document.getElementById('visitors').innerHTML += '<div class="player-grid" style="margin-right:5px">'
-                                                                + '<div class="player-name"><i class="fas fa-crown"></i>guest'+value.player+'</div>'
-                                                                + '</div>'
-                        else 
-                        document.getElementById('visitors').innerHTML += '<div class="player-grid" margin-right:5px">'
-                                                                + '<div class="player-name">guest'+value.player+'</div>'
-                                                                + '</div>'
-                        if(msg[0].player1 == value.player){
-                            document.getElementById('player1').innerHTML = '';
-                            document.getElementById('player1').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>guest'+msg[0].player1+'</div>';
-                        }
-                        if(msg[0].player2 == value.player){
-                            document.getElementById('player2').innerHTML = '';
-                            document.getElementById('player2').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>guest'+msg[0].player2+'</div>';
-                        }
-                    } else {
-                        if(value.player == msg[0].keyHeader)
-                        document.getElementById('visitors').innerHTML += '<div class="player-grid" margin-right:5px">'
-                                                                + '<div class="player-name"><i class="fas fa-crown"></i>'+value.player+'</div>'
-                                                                + '</div>'
-                        else 
-                        document.getElementById('visitors').innerHTML += '<div class="player-grid" margin-right:5px">'
-                                                                + '<div class="player-name">'+value.player+'</div>'
-                                                                + '</div>'
-                        if(msg[0].player1 == value.player){
-                            document.getElementById('player1').innerHTML = '';
-                            document.getElementById('player1').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>'+msg[0].player1+'</div>';
-                        }
-                        if(msg[0].player2 == value.player){
-                            document.getElementById('player2').innerHTML = '';
-                            document.getElementById('player2').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>'+msg[0].player2+'</div>';
+                }
+                if(info.turn){
+                    document.getElementById('start-btn').style.display = 'none'; 
+                    elmP1.innerHTML = '<div class="player-name">'+pla1+' '+info.player1.substring(0, 9)+'</div>';
+                    elmP2.innerHTML = '<div class="player-name">'+pla2+info.player2.substring(0, 9)+'</div>';
+                    var item = info.item;
+                    for(var i=0 ; i < item.length ; i++){
+                        if(i%2 == 0){
+                            document.getElementById('g'+item[i]).innerHTML = pla1;
+                        } else {
+                            document.getElementById('g'+item[i]).innerHTML = pla2;
                         }
                     }
-                })
+                    if(info.turn == 1){
+                        document.getElementById('text').innerHTML = '('+info.player1 + ' s\'turn'+')';
+                    } else {
+                        document.getElementById('text').innerHTML = '('+info.player2 + ' s\'turn'+')';
+                    }
+                }
+                if(info.winner){
+                    if(info.winner == 1){
+                        document.getElementById('text').innerHTML = 'winner is '+info.player1 ;
+                    } else {
+                        document.getElementById('text').innerHTML = 'winner is '+info.player2 ;
+                    }
+                    document.getElementById('start-btn').style.display = 'block';
+                }
             }
-            if(!msg[0].player1){
-                document.getElementById('player1').innerHTML = '';
-                document.getElementById('player1').innerHTML += '<div class="player-name" style="color:#202020"><i class="fas fa-plus-circle"></i></i>waiting player</div>';
-            }
-            if(!msg[0].player2){
-                document.getElementById('player2').innerHTML = '';
-                document.getElementById('player2').innerHTML += '<div class="player-name" style="color:#202020"><i class="fas fa-plus-circle"></i></i>waiting player<div>';
-            }
-        })
 
-        socket.on('update-player:<%= data[1].key %>' , (msg) => {
-            if(msg.header == user){
-                document.getElementById('player1').innerHTML = '';
-                document.getElementById('player1').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>'+msg.player1+'</div><div class="option3" onclick="drop(1)">Drop</div>';
-                document.getElementById('player2').innerHTML = '';
-                document.getElementById('player2').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>'+msg.player2+'</div><div class="option3" onclick="drop(2)">Drop</div>';
+            var player1="<%= data[1].player1 %>" , player2 = "<%= data[1].player2 %>";
+            function setPlayer1(user){
+                if(player2 == user){
+                    player2 = "";
+                    player1 = user;
+                } else {
+                    player1 = user;
+                }
+                socket.emit('set-player',{room:'<%= data[1].room %>' , player1:player1 , player2:player2 })
+                loadRoom();
+            }
+
+            function setPlayer2(user){
+                if(player1 == user){
+                    player1 = "";
+                    player2 = user;
+                } else {
+                    player2 = user;
+                }
+                socket.emit('set-player',{room:'<%= data[1].room %>' , player1:player1 , player2:player2 })
+                loadRoom();
+            }
+
+            function startGame(){
+                socket.emit('start-game' , {room:'<%= data[1].room %>'} );
+            }
+            
+            function send(id){
+                socket.emit('send-data' , {room:'<%= data[1].room %>' , user:'<%= data[0].username %>' , id:id})
+            }
+
+            var visitorShow = 0
+            var visitors = () =>{
+                if(visitorShow == 0){
+                    document.getElementById('visitors').style.display = 'none';
+                    visitorShow = 1;
+                } else {
+                    document.getElementById('visitors').style.display = 'block';
+                    visitorShow = 0;
+                }
+            }
+        </script>
+    <% } else { %> 
+        <script>
+            var pla1 = '<i class="far fa-circle"></i>';
+            var pla2 = '<i class="fas fa-times"></i>';
+            var socket = io();
+            loadRoom();
+
+            socket.on('res:<%= data[1].room %>' , (msg) => {
+                if(msg.err == 500){
+                    alert('This room is now closed.');
+                    return;
+                }
+                query(msg);
+            })
+
+            function loadRoom(){
+                socket.emit('load-room' , {room :'<%= data[1].room %>'});
+            }
+
+            function query(msg){
                 console.log(msg)
-                if(msg.player1 != 0 && msg.player2 != 0)
-                    document.getElementById('start-btn').style.display = 'block';
-                else 
-                    document.getElementById('start-btn').style.display = 'none';
-            } else {
-                document.getElementById('player1').innerHTML = '';
-                document.getElementById('player1').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>'+msg.player1+'</div>';
-                document.getElementById('player2').innerHTML = '';
-                document.getElementById('player2').innerHTML += '<div class="player-name"><i class="fas fa-user"></i>'+msg.player2+'</div>';
-            }
-            if(msg.player1 == 0){
-                document.getElementById('player1').innerHTML = '<div class="player-name" style="color:#202020"><i class="fas fa-plus-circle"></i></i>waiting player</div>';
-            }
-            if(msg.player2 == 0){
-                document.getElementById('player2').innerHTML = '<div class="player-name" style="color:#202020"><i class="fas fa-plus-circle"></i></i>waiting player</div>';
-            }       
-        })
+                var info = msg[0];
+                var elmP1 = document.getElementById('player1');
+                var elmP2 = document.getElementById('player2');
+                if(info.player1 == ""){
+                    elmP1.innerHTML = '<div class="player-name" style="color:#202020"><i class="fas fa-plus-circle"></i></i>waiting player</div>';
+                } else {
+                    elmP1.innerHTML = '<div class="player-name">'+pla1+' '+info.player1.substring(0, 9)+'</div>';
+                }
+                if(info.player2 == ""){
+                    elmP2.innerHTML = '<div class="player-name" style="color:#202020"><i class="fas fa-plus-circle"></i></i>waiting player</div>';
+                } else {
+                    elmP2.innerHTML = '<div class="player-name">'+pla2+info.player2.substring(0, 9)+'</div>';
+                }
 
-        var player1 = '<%= data[1].player1 %>' , player2 = '<%= data[1].player2 %>';
-        
-        let setPlayer1 = (id) =>{
-            player1 = id
-            if(player2 == id) {
-                player2 = 0;
-                socket.emit('set-player',{room :'<%= data[1].key %>' , header :'<%= data[0].id %>' ,player1 : id , player2 : 0})
-            } else {
-                socket.emit('set-player',{room :'<%= data[1].key %>' , header :'<%= data[0].id %>' ,player1 : id , player2 : player2})
-            }
-        }
+                var user = msg[1];
+                var elmVi = document.getElementById('visitors');
+                elmVi.innerHTML = '';
 
-        let setPlayer2 = (id) =>{
-            player2 = id
-            if(player1 == id) {
-                player1 = 0;
-                socket.emit('set-player',{room :'<%= data[1].key %>' , header :'<%= data[0].id %>' , player1 : 0 ,player2 : id})
-            } else {
-                socket.emit('set-player',{room :'<%= data[1].key %>' , header :'<%= data[0].id %>' , player1 : player1 ,player2 : id})
+                user.map( (item) => {
+                    if(item.user == '<%= data[1].header %>'){
+                        elmVi.innerHTML += '<div class="player-grid" style="float:left; margin-right:5px;">'
+                                    + '<div class="player-name"><i class="fas fa-crown"></i>'+item.user+'</div>'
+                                    + '</div>'
+                    } else {
+                        elmVi.innerHTML += '<div class="player-grid" style="float:left; margin-right:5px;">'
+                                    + '<div class="player-name">'+item.user+'</div>'
+                                    + '</div>'
+                    }
+                })
+       
+                if(info.turn){
+                    var item = info.item;
+                    if(item.length == 0) {document.getElementById('text').innerHTML = '('+info.player1 + ' s\'turn'+')';}
+                    for(var i=0 ; i < item.length ; i++){
+                        if(i%2 == 0){
+                            document.getElementById('g'+item[i]).innerHTML = pla1;
+                        } else {
+                            document.getElementById('g'+item[i]).innerHTML = pla2;
+                        }
+                    }
+                    if(info.turn == 1){
+                        document.getElementById('text').innerHTML = '('+info.player1 + ' s\'turn'+')';
+                    } else {
+                        document.getElementById('text').innerHTML = '('+info.player2 + ' s\'turn'+')';
+                    }
+                }
+                if(info.winner){
+                    if(info.winner == 1){
+                        document.getElementById('text').innerHTML = 'winner is '+info.player1 ;
+                    } else {
+                        document.getElementById('text').innerHTML = 'winner is '+info.player2 ;
+                    }
+                }
             }
-        }
 
-        let drop = (id) => {
-            if(id == 1) player1 = 0;
-            else player2 = 0;
-            socket.emit('set-player',{room :'<%= data[1].key %>' , header :'<%= data[0].id %>' , player1 : player1 ,player2 : player2})
-        }
-        
-        let startGame = () => {
-            if(player1&& player2){
-                socket.emit('start-game' , {room:'<%= data[1].key %>' , header:'<%= data[0].id %>'})
+            function send(id){
+                socket.emit('send-data' , {room:'<%= data[1].room %>' , user:'<%= data[0].username %>' , id:id})
             }
-        }
-
-        var visitorShow = 0
-        var visitors = () =>{
-            if(visitorShow == 0){
-                document.getElementById('visitors').style.display = 'none';
-                visitorShow = 1;
-            } else {
-                document.getElementById('visitors').style.display = 'block';
-                visitorShow = 0;
+      
+            var visitorShow = 0
+            var visitors = () =>{
+                if(visitorShow == 0){
+                    document.getElementById('visitors').style.display = 'none';
+                    visitorShow = 1;
+                } else {
+                    document.getElementById('visitors').style.display = 'block';
+                    visitorShow = 0;
+                }
             }
-        }
-    </script>
-
+        </script>
+    <% } %> 
 </body>
 </html>

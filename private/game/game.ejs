@@ -15,7 +15,7 @@
         <div class="link" onclick="window.location.href='/'" ><i class="fas fa-meteor"></i> Feed</div>
         <div class="link" onclick="window.location.href='/chat'"><i class="fas fa-people-arrows"></i> Message</div>
         <div class="link active"><i class="fas fa-satellite"></i>Game</div> 
-        <% if(data[0].username!='none') { %> 
+        <% if(data[0].status == 1) { %> 
             <div class="profile" onclick="document.getElementById('control').style.display='block'">
                 <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/<%= data[0].username %>.jpg');"></div></div>
                 <div class="profile-name"><%= data[0].username %></div>
@@ -23,7 +23,7 @@
         <% } else { %> 
             <div class="profile" onclick="window.location.href='/login?href=/game'">
                 <div class="load-img"><div class="profile-img" style="background-image: url('/img/user/none.jpg');"></div></div>
-                <div class="profile-name">guest<%= data[0].id %></div>
+                <div class="profile-name"><%= data[0].username %></div>
             </div>
         <% } %> 
     </div>
@@ -86,18 +86,17 @@
     <script>
         var socket = io();
 
-        socket.on('create-status' , (msg) => {
-            if(msg.key){
-                setCookie('keyGame',msg.keyHeader,1)
-                window.location.href = '/game/'+msg.key;
-            }
+        socket.on('confirm-create' , (msg) => {
+            setCookie('game-user','<%= data[0].username %>',1);
+            setCookie('game-key','<%= data[0].key %>',1);
+            window.location.href = '/game/' + msg.room;
         })
 
-        var createServer = () =>{
-            socket.emit('createRoom', {user:'<%= data[0].username %>',server:'<%= data[0].id %>'});
+        let createServer = () => {
+            socket.emit('create-game' , {user:'<%= data[0].username %>' , key:'<%= data[0].key %>'});
         }
 
-        function setCookie(cname, cvalue, exdays) {
+        let setCookie = (cname, cvalue, exdays) => {
             var d = new Date();
             d.setTime(d.getTime() + (exdays*24*60*60*1000));
             var expires = "expires="+ d.toUTCString();
